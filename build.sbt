@@ -11,7 +11,17 @@ libraryDependencies ++= Seq(
   "com.novus" %% "salat" % "1.9.9",
   "org.scaldi" %% "scaldi" % "0.3.2",
   "net.debasishg" %% "redisreact" % "0.7",
-  "com.typesafe" % "config" % "1.0.2"
+  "com.typesafe" % "config" % "1.0.2",
+  "com.github.t3hnar" %% "scala-bcrypt" % "2.4",
+  "de.neuland-bfi" % "jade4j" % "0.4.2"
   )
 
 scalaVersion := "2.10.4"
+
+org.scalastyle.sbt.ScalastylePlugin.Settings
+
+Revolver.settings
+
+Revolver.enableDebugging(port = 5005, suspend = false)
+
+mainClass in Revolver.reStart := Some("com.github.slvrthrn.App")
