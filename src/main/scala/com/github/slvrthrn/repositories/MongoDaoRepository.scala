@@ -24,6 +24,7 @@ trait MongoDaoRepository[O <: MongoEntity] { self: InjectHelper =>
   protected val db: MongoDB = inject[MongoDB]
 
   protected val collection: MongoCollection
+
   protected val dao: SalatDAO[O, ObjectId]
 
   /**

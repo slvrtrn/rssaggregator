@@ -8,7 +8,10 @@ import com.github.slvrthrn.models.User
  */
 trait UserService {
 
-  def getAllUsers: Future[Seq[User]]
+  def checkPassword(password: String, user: User): Boolean
 
-  def createUser(login: String, email: String, password: String): Future[Option[User]]
+  def checkUserExistence(login: String): Future[Boolean]
+
+  def createUser(login: String, password: String): Future[Option[User]]
+
 }

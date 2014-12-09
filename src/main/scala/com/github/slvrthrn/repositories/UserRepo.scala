@@ -16,11 +16,5 @@ trait UserRepo extends MongoDaoRepository[User] { self: InjectHelper =>
 
   protected val dao = new SalatDAO[User, ObjectId](collection = collection) {}
 
-  def findUser(login: String, email: String): Future[Option[User]]
-
-  def findUserByLogin(login: String): Future[Option[User]]
-
-  def findUserByEmail(email: String): Future[Option[User]]
-
-  def insertUser(login: String, email: String, password: String): Future[User]
+  def findUser(login: String): Future[Option[User]]
 }

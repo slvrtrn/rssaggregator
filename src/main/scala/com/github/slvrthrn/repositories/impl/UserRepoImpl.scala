@@ -12,23 +12,10 @@ import scaldi.Injector
  * Created by slvr on 12/6/14.
  */
 class UserRepoImpl(implicit val inj: Injector) extends UserRepo with InjectHelper{
-  def findUserByLogin(login: String): Future[Option[User]] = {
+
+  def findUser(login: String): Future[Option[User]] = {
     val filter = MongoDBObject("login" -> login)
     findOne(filter)
   }
 
-  def findUserByEmail(email: String): Future[Option[User]] = {
-    val filter = MongoDBObject("email" -> email)
-    findOne(filter)
-  }
-
-  def findUser(login: String, email: String): Future[Option[User]] = {
-    val filter = MongoDBObject(List("login" -> login, "email" -> email))
-    findOne(filter)
-  }
-
-  def insertUser(login: String, email: String, password: String): Future[User] = {
-    val user = User(new ObjectId(), login, email, password)
-    save(user)
-  }
 }
