@@ -1,6 +1,7 @@
 package com.github.slvrthrn.services.impl
 
 import com.github.slvrthrn.services.UserService
+import com.github.slvrthrn.views.forms.RegForm
 import com.twitter.util.Future
 import com.github.slvrthrn.models.User
 import com.github.slvrthrn.repositories.UserRepo
@@ -26,10 +27,13 @@ class UserServiceImpl(implicit val inj: Injector) extends UserService with Injec
     }
   }
 
-  def createUser(login: String, password: String): Future[Option[User]] = {
+  def createUser(form: RegForm): Future[Option[User]] = {
     for {
-      exist <- checkUserExistence(login)
-      regResult <- if(!exist) userRepo.save(User(login, password.bcrypt)).map(Some(_)) else Future value None
+      exist <- checkUserExistence(form.login)
+      regResult <- {
+        if(!exist) userRepo.save(User(form.login, form.password.bcrypt)).map(Some(_))
+        else Future value None
+      }
     } yield regResult
   }
 

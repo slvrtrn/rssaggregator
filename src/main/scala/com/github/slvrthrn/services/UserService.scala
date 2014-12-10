@@ -1,5 +1,6 @@
 package com.github.slvrthrn.services
 
+import com.github.slvrthrn.views.forms.RegForm
 import com.twitter.util.Future
 import com.github.slvrthrn.models.User
 
@@ -12,6 +13,6 @@ trait UserService {
 
   def checkUserExistence(login: String): Future[Boolean]
 
-  def createUser(login: String, password: String): Future[Option[User]]
+  def createUser(form: RegForm): Future[Option[User]]
 
 }

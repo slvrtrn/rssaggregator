@@ -13,7 +13,8 @@ libraryDependencies ++= Seq(
   "net.debasishg" %% "redisreact" % "0.7",
   "com.typesafe" % "config" % "1.0.2",
   "com.github.t3hnar" %% "scala-bcrypt" % "2.4",
-  "de.neuland-bfi" % "jade4j" % "0.4.2"
+  "de.neuland-bfi" % "jade4j" % "0.4.2",
+  "com.wix" %% "accord-core" % "0.4"
   )
 
 scalaVersion := "2.10.4"
