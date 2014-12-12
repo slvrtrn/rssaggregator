@@ -9,7 +9,7 @@ import com.redis.RedisClient
 import scaldi.Injector
 import com.novus.salat._
 import com.novus.salat.global._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration.Duration
 
 /**
@@ -21,13 +21,19 @@ class SessionCache(implicit val inj: Injector) extends InjectHelper {
 
   private implicit val timeout = Timeout(Duration(5, TimeUnit.SECONDS))
 
-  def put(session: Session): Future[Boolean] = {
+  private implicit val executionContext = inject[ExecutionContext]
+
+  def set(session: Session): Future[Boolean] = {
     val json = grater[Session].toCompactJSON(session)
     client.set(session.id, json)
   }
 
-  def get(key: String): Future[Option[String]] = {
-    client.get(key)
+  def get(key: String): Future[Option[Session]] = {
+    val json: Future[Option[String]] = client.get(key)
+    json map {
+      case Some(s: String) => Some(grater[Session].fromJSON(s))
+      case _ => None
+    }
   }
 
 }

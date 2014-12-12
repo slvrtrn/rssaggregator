@@ -18,22 +18,27 @@ class IndexFilter(implicit val inj: Injector)
 
   def apply(request: FinagleRequest, service: Service[FinagleRequest, FinagleResponse]) = {
 
-//    val sessionService = inject[SessionService]
-//
-//    request.cookies.get("sid") match {
-//      case Some(c: Cookie) =>
-//        sessionService.checkSession(c.value) flatMap {
-//          case true => service(request)
-//          case _ => if (request.uri != "/login") redirectToLogin else service(request)
-//        }
-//      case None => redirectToLogin
-//    }
-    service(request)
+    val sessionService = inject[SessionService]
+
+    request.cookies.get("sid") match {
+      case Some(c: Cookie) =>
+        sessionService.checkSession(c.value) flatMap {
+          case true => service(request)
+          case _ =>
+            if (!request.uri.contains("/login")) {
+              val expired = new Cookie("sid", "")
+              expired.maxAge = Duration(-42, TimeUnit.DAYS)
+              Future value new ResponseBuilder()
+                .plain("Redirecting to login").status(302).header("Location", "/login").cookie(expired).build
+            } else service(request)
+        }
+      case _ =>
+        if (!request.uri.contains("/login")) {
+          Future value new ResponseBuilder()
+            .plain("Redirecting to login").status(302).header("Location", "/login").build
+        } else service(request)
+    }
+
   }
 
-//  def redirectToLogin = {
-//    val expired = new Cookie("sid", "")
-//    expired.maxAge = Duration(-10, TimeUnit.DAYS)
-//    Future value new ResponseBuilder().plain("Redirecting to login").status(302).header("Location", "/login").cookie(expired).build
-//  }
 }

@@ -5,7 +5,7 @@ import com.twitter.util.Future
 import com.wix.accord._
 import com.github.slvrthrn.models.User
 import com.github.slvrthrn.services.{SessionService, UserService}
-import com.github.slvrthrn.views.forms.{LoginForm, RegForm}
+import com.github.slvrthrn.models.forms.{LoginForm, RegForm}
 import scaldi.Injector
 
 /**

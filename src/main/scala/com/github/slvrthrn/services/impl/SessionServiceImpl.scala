@@ -23,7 +23,7 @@ class SessionServiceImpl (implicit val inj: Injector) extends SessionService wit
 
   def checkSession(sid: String): Future[Boolean] = {
     sessionCache.get(sid).asTwitter map {
-      case Some(s: String) => true
+      case Some(s: Session) => true
       case _ => false
     }
   }
@@ -31,7 +31,7 @@ class SessionServiceImpl (implicit val inj: Injector) extends SessionService wit
   def createSession(u: User): Future[Option[String]] = {
     val id = UUID.randomUUID.toString
     val session = Session(id, u._id)
-    sessionCache.put(session).asTwitter map {
+    sessionCache.set(session).asTwitter map {
       case true => Some(id)
       case _ => None
     }

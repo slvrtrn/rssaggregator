@@ -1,4 +1,4 @@
-package com.github.slvrthrn.views.forms
+package com.github.slvrthrn.models.forms
 
 import com.wix.accord.dsl._
 

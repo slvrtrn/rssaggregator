@@ -1,6 +1,6 @@
 package com.github.slvrthrn.services
 
-import com.github.slvrthrn.views.forms.{LoginForm, RegForm}
+import com.github.slvrthrn.models.forms.{LoginForm, RegForm}
 import com.twitter.util.Future
 import com.github.slvrthrn.models.User
 

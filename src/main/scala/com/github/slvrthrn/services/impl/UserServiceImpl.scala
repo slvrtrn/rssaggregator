@@ -2,7 +2,7 @@ package com.github.slvrthrn.services.impl
 
 import com.github.slvrthrn.services.UserService
 import com.github.slvrthrn.utils.InjectHelper
-import com.github.slvrthrn.views.forms.{LoginForm, RegForm}
+import com.github.slvrthrn.models.forms.{LoginForm, RegForm}
 import com.twitter.util.Future
 import com.github.slvrthrn.models.User
 import com.github.slvrthrn.repositories.UserRepo
@@ -39,7 +39,7 @@ class UserServiceImpl(implicit val inj: Injector) extends UserService with Injec
   }
 
   def checkLogin(form: LoginForm): Future[Option[User]] = {
-    val result = userRepo.findUser(form.login) map {
+    userRepo.findUser(form.login) map {
       case Some(u: User) =>
         checkPassword(form.password, u) match {
           case true => Some(u)
@@ -47,6 +47,5 @@ class UserServiceImpl(implicit val inj: Injector) extends UserService with Injec
         }
       case _ => None
     }
-    result
   }
 }
