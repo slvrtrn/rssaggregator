@@ -32,8 +32,8 @@ class CommonConfiguration extends Module {
   def redisClient(urlConfigPath: String, portConfigPath: String) = {
     implicit val system = ActorSystem("redis-client")
     val config = inject[Config]
-    val url = config.getString("redis.default.url")
-    val port = config.getInt("redis.default.port")
+    val url = config.getString(urlConfigPath)
+    val port = config.getInt(portConfigPath)
     RedisClient(url, port)
   }
 
