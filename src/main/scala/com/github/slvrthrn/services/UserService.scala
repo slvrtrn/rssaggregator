@@ -1,6 +1,6 @@
 package com.github.slvrthrn.services
 
-import com.github.slvrthrn.views.forms.RegForm
+import com.github.slvrthrn.views.forms.{LoginForm, RegForm}
 import com.twitter.util.Future
 import com.github.slvrthrn.models.User
 
@@ -10,6 +10,8 @@ import com.github.slvrthrn.models.User
 trait UserService {
 
   def checkPassword(password: String, user: User): Boolean
+
+  def checkLogin(form: LoginForm): Future[Option[User]]
 
   def checkUserExistence(login: String): Future[Boolean]
 
