@@ -32,7 +32,7 @@ class Auth(implicit val inj: Injector) extends Controller {
         userService.checkLogin(loginForm) flatMap {
           case Some(u: User) =>
             sessionService.createSession(u) map {
-              case uuid: Option[String] => redirect("/", "Login is OK and session is created").cookie("sid", uuid.get)
+              case Some(uuid: String) => redirect("/", "Login is OK and session is created").cookie("sid", uuid)
               case _ => render.plain("Database error")
             }
           case None => Future value render.plain("Login failed - incorrect login or password")
