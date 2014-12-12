@@ -35,7 +35,7 @@ class Auth(implicit val inj: Injector) extends Controller {
               case uuid: Option[String] => redirect("/", "Login is OK and session is created").cookie("sid", uuid.get)
               case _ => render.plain("Database error")
             }
-          case None => render.plain("Login failed - incorrect login or password").toFuture
+          case None => Future value render.plain("Login failed - incorrect login or password")
         }
       case _ => render.plain("Form validation failed").toFuture
     }

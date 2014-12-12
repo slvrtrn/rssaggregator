@@ -43,7 +43,7 @@ class UserServiceImpl(implicit val inj: Injector) extends UserService with Injec
       case Some(u: User) =>
         checkPassword(form.password, u) match {
           case true => Some(u)
-          case false => None
+          case _ => None
         }
       case _ => None
     }
