@@ -25,9 +25,13 @@ class IndexFilter(implicit val inj: Injector)
     request.cookies.get("sid") match {
       case Some(c: Cookie) =>
         sessionService.getSession(c.value) flatMap {
-          case Some(s: Session) => service(AuthRequest(request, s))
+          case Some(s: Session) =>
+            if (isRegOrLogin(request)) {
+              Future value new ResponseBuilder()
+                .plain("Already logged in, redirecting to index").status(302).header("Location", "/").build
+            } else service(AuthRequest(request, s))
           case _ =>
-            if (!request.uri.contains("/login")) {
+            if (!isRegOrLogin(request)) {
               val expired = new Cookie("sid", "")
               expired.maxAge = Duration(-42, TimeUnit.DAYS)
               Future value new ResponseBuilder()
@@ -35,12 +39,16 @@ class IndexFilter(implicit val inj: Injector)
             } else service(request)
         }
       case _ =>
-        if (!request.uri.contains("/login")) {
+        if (!isRegOrLogin(request)) {
           Future value new ResponseBuilder()
             .plain("Redirecting to login").status(302).header("Location", "/login").build
         } else service(request)
     }
 
+  }
+
+  private def isRegOrLogin(request: FinagleRequest): Boolean = {
+    request.uri.contains("/login") || request.uri.contains("/reg")
   }
 
 }
