@@ -10,7 +10,6 @@ class LoginView extends View {
 
   def renderHtml: String = {
     val template = Jade4J.getTemplate("./tpl/login.jade")
-    val model = Map[String, AnyRef]()
     Jade4J.render(template, model)
   }
 

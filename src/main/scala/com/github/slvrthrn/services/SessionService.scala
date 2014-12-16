@@ -1,6 +1,6 @@
 package com.github.slvrthrn.services
 
-import com.github.slvrthrn.models.User
+import com.github.slvrthrn.models.{Session, User}
 import com.twitter.util.Future
 
 /**
@@ -8,7 +8,7 @@ import com.twitter.util.Future
  */
 trait SessionService {
 
-  def checkSession(sid: String): Future[Boolean]
+  def getSession(sid: String): Future[Option[Session]]
 
   def createSession(u: User): Future[Option[String]]
 

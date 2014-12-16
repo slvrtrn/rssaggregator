@@ -8,8 +8,11 @@ import scaldi.{Injectable, Injector}
  */
 class Index(implicit val inj: Injector) extends Controller with Injectable {
 
-  get("/") { request =>
-    val indexView = new IndexView
-    render.html(indexView.renderHtml).toFuture
+  get("/") { implicit request =>
+    withUserContext { user =>
+      val indexView = new IndexView
+      indexView.addToModel("user", user)
+      render.html(indexView.renderHtml).toFuture
+    }
   }
 }

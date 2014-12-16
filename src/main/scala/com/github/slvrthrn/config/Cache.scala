@@ -1,6 +1,6 @@
 package com.github.slvrthrn.config
 
-import com.github.slvrthrn.repositories.cache.SessionCache
+import com.github.slvrthrn.repositories.cache.{UserCache, SessionCache}
 import scaldi.Module
 
 /**

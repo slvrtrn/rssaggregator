@@ -21,11 +21,8 @@ class SessionServiceImpl (implicit val inj: Injector) extends SessionService wit
 
   private implicit val executionContext = inject[ExecutionContext]
 
-  def checkSession(sid: String): Future[Boolean] = {
-    sessionCache.get(sid).asTwitter map {
-      case Some(s: Session) => true
-      case _ => false
-    }
+  def getSession(sid: String): Future[Option[Session]] = {
+    sessionCache.get(sid).asTwitter
   }
 
   def createSession(u: User): Future[Option[String]] = {

@@ -1,6 +1,7 @@
 package com.github.slvrthrn.filters
 
 import java.util.concurrent.TimeUnit
+import com.github.slvrthrn.models.Session
 import com.github.slvrthrn.services.SessionService
 import com.github.slvrthrn.utils.InjectHelper
 import com.twitter.finagle.{Service, SimpleFilter}
@@ -9,6 +10,7 @@ import com.twitter.app.App
 import com.twitter.finatra.ResponseBuilder
 import com.twitter.util.{Duration, Future}
 import scaldi.Injector
+import com.twitter.finatra.{Request => FinatraRequest}
 
 /**
  * Created by slvr on 12/12/14.
@@ -22,8 +24,8 @@ class IndexFilter(implicit val inj: Injector)
 
     request.cookies.get("sid") match {
       case Some(c: Cookie) =>
-        sessionService.checkSession(c.value) flatMap {
-          case true => service(request)
+        sessionService.getSession(c.value) flatMap {
+          case Some(s: Session) => service(AuthRequest(request, s))
           case _ =>
             if (!request.uri.contains("/login")) {
               val expired = new Cookie("sid", "")
@@ -42,3 +44,5 @@ class IndexFilter(implicit val inj: Injector)
   }
 
 }
+
+case class AuthRequest(override val request: FinagleRequest, session: Session) extends FinatraRequest(request)
