@@ -37,10 +37,6 @@ trait MongoDaoRepository[O <: MongoEntity] { self: InjectHelper =>
     obj
   }
 
-  def upsert(filter: MongoDBObject, obj: O): Future[WriteResult] = Future {
-    dao.update(filter, obj, upsert = true, multi = false, wc = new WriteConcern)
-  }
-
   def find: Future[Seq[O]] = Future {
     val result = dao.find(MongoDBObject())
       .sort(MongoDBObject("_id" -> -1))
