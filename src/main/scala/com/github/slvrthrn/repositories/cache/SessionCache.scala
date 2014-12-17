@@ -3,7 +3,7 @@ package com.github.slvrthrn.repositories.cache
 import java.util.concurrent.TimeUnit
 
 import akka.util.Timeout
-import com.github.slvrthrn.models.Session
+import com.github.slvrthrn.models.entities.Session
 import com.github.slvrthrn.utils.InjectHelper
 import com.redis.RedisClient
 import scaldi.Injector

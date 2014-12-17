@@ -1,6 +1,6 @@
 package com.github.slvrthrn.repositories.cache
 
-import com.github.slvrthrn.models.User
+import com.github.slvrthrn.models.entities.User
 import com.github.slvrthrn.repositories.impl.UserRepoImpl
 import com.twitter.util.Future
 import org.bson.types.ObjectId

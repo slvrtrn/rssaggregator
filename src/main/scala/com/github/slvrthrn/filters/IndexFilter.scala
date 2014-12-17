@@ -1,7 +1,7 @@
 package com.github.slvrthrn.filters
 
 import java.util.concurrent.TimeUnit
-import com.github.slvrthrn.models.Session
+import com.github.slvrthrn.models.entities.Session
 import com.github.slvrthrn.services.SessionService
 import com.github.slvrthrn.utils.InjectHelper
 import com.twitter.finagle.{Service, SimpleFilter}

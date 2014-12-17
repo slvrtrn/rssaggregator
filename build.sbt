@@ -14,7 +14,8 @@ libraryDependencies ++= Seq(
   "com.typesafe" % "config" % "1.0.2",
   "com.github.t3hnar" %% "scala-bcrypt" % "2.4",
   "de.neuland-bfi" % "jade4j" % "0.4.2",
-  "com.wix" %% "accord-core" % "0.4"
+  "com.wix" %% "accord-core" % "0.4",
+  "org.scalatest" % "scalatest_2.10" % "2.2.1" % "test"
   )
 
 scalaVersion := "2.10.4"

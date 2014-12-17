@@ -1,11 +1,11 @@
 package com.github.slvrthrn.repositories
 
+import com.github.slvrthrn.models.entities.MongoEntity
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.{MongoDB, MongoCollection}
 import com.novus.salat.dao.SalatDAO
 import com.twitter.util.Future
 import org.bson.types.ObjectId
-import com.github.slvrthrn.models.MongoEntity
 import com.github.slvrthrn.utils.InjectHelper
 import scala.concurrent.ExecutionContext
 import com.mongodb.casbah.Imports._
@@ -35,6 +35,10 @@ trait MongoDaoRepository[O <: MongoEntity] { self: InjectHelper =>
   def save(obj: O): Future[O] = Future {
     dao.save(obj)
     obj
+  }
+
+  def upsert(filter: MongoDBObject, obj: O): Future[WriteResult] = Future {
+    dao.update(filter, obj, upsert = true, multi = false, wc = new WriteConcern)
   }
 
   def find: Future[Seq[O]] = Future {

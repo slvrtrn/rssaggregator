@@ -1,10 +1,10 @@
 package com.github.slvrthrn.services.impl
 
+import com.github.slvrthrn.models.entities.User
 import com.github.slvrthrn.services.UserService
 import com.github.slvrthrn.utils.InjectHelper
 import com.github.slvrthrn.models.forms.{LoginForm, RegForm}
 import com.twitter.util.Future
-import com.github.slvrthrn.models.User
 import com.github.slvrthrn.repositories.UserRepo
 import scaldi.Injector
 import com.github.t3hnar.bcrypt._

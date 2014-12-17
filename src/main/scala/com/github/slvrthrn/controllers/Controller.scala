@@ -3,7 +3,7 @@ package com.github.slvrthrn.controllers
 import java.util.concurrent.TimeUnit
 
 import com.github.slvrthrn.filters.AuthRequest
-import com.github.slvrthrn.models.{Session, User}
+import com.github.slvrthrn.models.entities.User
 import com.github.slvrthrn.repositories.UserRepo
 import com.novus.salat._
 import com.novus.salat.global._

@@ -2,7 +2,7 @@ package com.github.slvrthrn.services.impl
 
 import java.util.UUID
 
-import com.github.slvrthrn.models.{Session, User}
+import com.github.slvrthrn.models.entities.{User, Session}
 import com.github.slvrthrn.repositories.cache.SessionCache
 import com.github.slvrthrn.services.SessionService
 import com.github.slvrthrn.utils.InjectHelper

@@ -3,4 +3,8 @@ html
   head
     title= Index
   body
-    h1 Hello world #{user}
+    h1 Hello world, #{user}
+    form(name="rssForm", action="/addrss", method="post")
+      input(type="text", name="url")
+      input(type="submit")
+    h1 Current RSS

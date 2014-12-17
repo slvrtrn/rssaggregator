@@ -1,4 +1,4 @@
-package com.github.slvrthrn.models
+package com.github.slvrthrn.models.entities
 
 import org.bson.types.ObjectId
 

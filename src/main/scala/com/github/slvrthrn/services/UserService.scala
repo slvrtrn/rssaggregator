@@ -1,8 +1,8 @@
 package com.github.slvrthrn.services
 
+import com.github.slvrthrn.models.entities.User
 import com.github.slvrthrn.models.forms.{LoginForm, RegForm}
 import com.twitter.util.Future
-import com.github.slvrthrn.models.User
 
 /**
  * Created by slvr on 12/6/14.

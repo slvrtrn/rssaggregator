@@ -1,6 +1,6 @@
 package com.github.slvrthrn.services
 
-import com.github.slvrthrn.models.{Session, User}
+import com.github.slvrthrn.models.entities.{User, Session}
 import com.twitter.util.Future
 
 /**
