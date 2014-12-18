@@ -10,7 +10,7 @@ case class RssNews(
                     title: String,
                     link: String,
                     description: String,
-                    parent: String,
+                    parent: ObjectId,
                     _id: ObjectId = new ObjectId
 
                     ) extends MongoEntity

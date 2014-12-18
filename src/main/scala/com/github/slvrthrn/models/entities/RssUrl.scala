@@ -9,7 +9,7 @@ import org.joda.time.DateTime
 case class RssUrl(
 
                    url: String,
-                   lastUpdate: DateTime = new DateTime,
+                   lastUpdate: DateTime = (new DateTime).minusSeconds(61),
                    _id: ObjectId = new ObjectId
 
                    ) extends MongoEntity

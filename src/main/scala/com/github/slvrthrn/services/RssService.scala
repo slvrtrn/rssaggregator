@@ -2,7 +2,7 @@ package com.github.slvrthrn.services
 
 import java.net.URL
 
-import com.github.slvrthrn.models.entities.{RssNews, User}
+import com.github.slvrthrn.models.entities.{RssUrl, RssNews, User}
 import com.twitter.util.Future
 
 /**
@@ -10,8 +10,8 @@ import com.twitter.util.Future
  */
 trait RssService {
 
-  def addRssUrl(url: URL, user: User): Future[Boolean]
+  def addRssUrl(url: URL, user: User): Future[Option[RssUrl]]
 
-  def loadNews(user: User): Future[List[RssNews]]
+  def loadNews(user: User): Future[Seq[RssNews]]
 
 }

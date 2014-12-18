@@ -4,12 +4,11 @@ import java.net.URL
 import java.util.UUID
 
 import com.github.slvrthrn.config.BindingsProvider
-import com.github.slvrthrn.models.entities.{Session, User}
+import com.github.slvrthrn.models.entities.{RssUrl, Session, User}
 import com.github.slvrthrn.models.forms.{RegForm, LoginForm}
-import com.github.slvrthrn.repositories.{RssUrlRepo, UserRepo}
+import com.github.slvrthrn.repositories.{RssNewsRepo, RssUrlRepo, UserRepo}
 import com.github.slvrthrn.services._
 import com.github.slvrthrn.utils.InjectHelper
-import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.Imports._
 import com.typesafe.config.Config
 import org.bson.types.ObjectId
@@ -33,6 +32,7 @@ class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfterA
   val sessionService = inject[SessionService]
   val userRepo = inject[UserRepo]
   val urlRepo = inject[RssUrlRepo]
+  val newsRepo = inject[RssNewsRepo]
   val config = inject[Config]
 
   val randomRegLogin = UUID.randomUUID.toString
@@ -44,7 +44,7 @@ class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfterA
     u._id.isInstanceOf[ObjectId] should be (true)
     u.login should equal(randomRegLogin)
     u.password should have length 60
-    u.feed.isInstanceOf[Map[String, String]] should be (true)
+    u.feed.isInstanceOf[Set[ObjectId]] should be (true)
     u.feed should be ('empty)
   }
   
@@ -53,7 +53,7 @@ class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfterA
     u._id.isInstanceOf[ObjectId] should be (true)
     u.login should equal (randomRegLogin)
     u.password should have length 60
-    u.feed.isInstanceOf[Map[String, String]] should be (true)
+    u.feed.isInstanceOf[Set[ObjectId]] should be (true)
   }
 
   it should "create session successfully" in {
@@ -66,8 +66,8 @@ class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfterA
     val url = new URL(rssUrl)
     val user = getUser(randomRegLogin, randomPwd)
     val futureAdd = rssService.addRssUrl(url, user).asScala
-    val result = Await.result(futureAdd, timeout)
-    result should be (true)
+    val result = Await.result(futureAdd, timeout).get
+    result.isInstanceOf[RssUrl] should be (true)
   }
 
   it should "download and parse news into the list" in {
@@ -78,8 +78,9 @@ class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfterA
   }
 
   override def afterAll() = {
-    userRepo.removeBy(MongoDBObject("login" -> randomRegLogin))
-    urlRepo.removeBy(MongoDBObject("url" -> rssUrl))
+    userRepo.removeBy("login" $eq randomRegLogin)
+    urlRepo.removeBy("url" $eq rssUrl)
+    newsRepo.clearCollection
   }
 
   def registerUser(login: String, password: String): User = {

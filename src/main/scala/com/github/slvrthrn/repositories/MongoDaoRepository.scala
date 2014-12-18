@@ -37,17 +37,31 @@ trait MongoDaoRepository[O <: MongoEntity] { self: InjectHelper =>
     obj
   }
 
-  def update(filter: MongoDBObject, obj: O, upsert: Boolean = false, multi: Boolean = false): Future[WriteResult]
-  = Future {
-    dao.update(filter, obj, upsert, multi, new WriteConcern)
+  /**
+   *
+   * @param t
+   * @return
+   */
+  def saveT(t: Traversable[O]): Future[Traversable[O]] = Future {
+    dao.insert(t)
+    t
   }
 
-  def pull(filter: MongoDBObject, whatToPull: Map[String, AnyRef]): Future[WriteResult] = Future {
-    dao.update(filter, MongoDBObject("$pull" -> whatToPull))
+  /**
+   *
+   * @return
+   */
+  def clearCollection: Future[WriteResult] = Future {
+    dao.remove(MongoDBObject())
   }
 
-  def find: Future[Seq[O]] = Future {
-    val result = dao.find(MongoDBObject())
+  /**
+   *
+   * @param filter
+   * @return
+   */
+  def find(filter: MongoDBObject = MongoDBObject()): Future[Seq[O]] = Future {
+    val result = dao.find(filter)
       .sort(MongoDBObject("_id" -> -1))
       .toList
     result

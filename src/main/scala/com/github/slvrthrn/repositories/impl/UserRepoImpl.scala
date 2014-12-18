@@ -13,9 +13,4 @@ import scaldi.Injector
  */
 class UserRepoImpl(implicit val inj: Injector) extends UserRepo with InjectHelper{
 
-  def findUser(login: String): Future[Option[User]] = {
-    val filter = MongoDBObject("login" -> login)
-    findOne(filter)
-  }
-
 }

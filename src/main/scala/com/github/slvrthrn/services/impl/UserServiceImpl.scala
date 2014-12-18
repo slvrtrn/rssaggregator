@@ -8,6 +8,7 @@ import com.twitter.util.Future
 import com.github.slvrthrn.repositories.UserRepo
 import scaldi.Injector
 import com.github.t3hnar.bcrypt._
+import com.mongodb.casbah.Imports._
 
 
 /**
@@ -22,7 +23,7 @@ class UserServiceImpl(implicit val inj: Injector) extends UserService with Injec
   }
 
   def checkUserExistence(login: String): Future[Boolean] = {
-    userRepo.findUser(login) map {
+    userRepo.findOne("login" $eq login) map {
       case Some(user: User) => true
       case _ => false
     }
@@ -39,7 +40,7 @@ class UserServiceImpl(implicit val inj: Injector) extends UserService with Injec
   }
 
   def checkLogin(form: LoginForm): Future[Option[User]] = {
-    userRepo.findUser(form.login) map {
+    userRepo.findOne("login" $eq form.login) map {
       case Some(u: User) =>
         checkPassword(form.password, u) match {
           case true => Some(u)

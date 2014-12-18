@@ -42,19 +42,13 @@ trait Controller extends FController with InjectHelper {
         }
       case _ => sessionError("There is no session in request")
     }
-
-//    userRepo.findById(request.asInstanceOf[AuthRequest].session.uid) flatMap {
-//      case Some(u: User) => f(u)
-//      case _ => sessionError("Cannot find user with UID stored in session")
-//    }
-
   }
 
   private def sessionError(s: String): Future[ResponseBuilder] = {
-//    val expired = new Cookie("sid", "")
-//    expired.maxAge = Duration(-42, TimeUnit.DAYS)
-//    render.plain(s).cookie(expired).toFuture
-    render.plain(s).toFuture
+    val expired = new Cookie("sid", "")
+    expired.maxAge = Duration(-42, TimeUnit.DAYS)
+    render.plain(s).cookie(expired).toFuture
+    renderJson(s)
   }
 
 }

@@ -9,7 +9,7 @@ case class User(
 
                  login: String,
                  password: String,
-                 feed: Map[String, String] = Map[String, String](),
+                 feed: Set[ObjectId] = Set[ObjectId](),
                  _id: ObjectId = new ObjectId
 
                  ) extends MongoEntity
