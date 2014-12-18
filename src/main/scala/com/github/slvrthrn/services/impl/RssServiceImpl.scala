@@ -26,9 +26,10 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
 
   private implicit val executionContext = inject[ExecutionContext]
 
-//  def addRssUrl(url: URL, user: User): Future[WriteResult] = {
-//    val urlStr  = url.toString
-//    urlRepo.upsert(MongoDBObject("url" -> urlStr), RssUrl(urlStr))
-//  }
+  def addRssUrl(url: URL, user: User): Future[WriteResult] = {
+    val urlStr  = url.toString
+    userRepo.save(user.copy(feed = user.feed + urlStr))
+    urlRepo.update(MongoDBObject("url" -> urlStr), RssUrl(urlStr), true)
+  }
 
 }

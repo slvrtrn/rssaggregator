@@ -11,6 +11,6 @@ import com.twitter.util.Future
  */
 trait RssService {
 
-  //def addRssUrl(url: URL, user: User): Future[WriteResult]
+  def addRssUrl(url: URL, user: User): Future[WriteResult]
 
 }
