@@ -5,4 +5,12 @@ import org.bson.types.ObjectId
 /**
  * Created by slvr on 12/17/14.
  */
-case class RssNews(title: String, link: String, description: String, _id: ObjectId = new ObjectId) extends MongoEntity
+case class RssNews(
+
+                    title: String,
+                    link: String,
+                    description: String,
+                    parent: String,
+                    _id: ObjectId = new ObjectId
+
+                    ) extends MongoEntity

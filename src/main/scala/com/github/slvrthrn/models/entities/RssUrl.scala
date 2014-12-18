@@ -1,8 +1,15 @@
 package com.github.slvrthrn.models.entities
 
 import org.bson.types.ObjectId
+import org.joda.time.DateTime
 
 /**
  * Created by slvr on 12/17/14.
  */
-case class RssUrl(url: String, _id: ObjectId = new ObjectId) extends MongoEntity
+case class RssUrl(
+
+                   url: String,
+                   lastUpdate: DateTime = new DateTime,
+                   _id: ObjectId = new ObjectId
+
+                   ) extends MongoEntity

@@ -11,6 +11,7 @@ import com.github.slvrthrn.services._
 import com.github.slvrthrn.utils.InjectHelper
 import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.Imports._
+import com.typesafe.config.Config
 import org.bson.types.ObjectId
 import com.github.slvrthrn.utils.Twitter._
 import org.scalatest._
@@ -22,60 +23,69 @@ import scala.concurrent.duration.Duration
  * Created by slvr on 12/17/14.
  */
 
-class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfter {
+class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfterAll {
 
   implicit val inj = BindingsProvider.getBindings
 
-  val randomRegLogin = UUID.randomUUID.toString
-  val rssUrl = "http://www.overclockers.ru/rss/lab.rss"
-  val login = "test"
-  val pwd = "test"
-  
   val timeout = Duration.Inf
   val rssService = inject[RssService]
   val userService = inject[UserService]
   val sessionService = inject[SessionService]
   val userRepo = inject[UserRepo]
   val urlRepo = inject[RssUrlRepo]
+  val config = inject[Config]
 
-  it should "process user login successfully" in {
-    val u = getUser(login, pwd)
+  val randomRegLogin = UUID.randomUUID.toString
+  val randomPwd = UUID.randomUUID.toString
+  val rssUrl = config.getString("test.default.rssUrl")
+
+  it should "register user successfully" in {
+    val u = registerUser(randomRegLogin, randomPwd)
     u._id.isInstanceOf[ObjectId] should be (true)
-    u.login should equal (login)
+    u.login should equal(randomRegLogin)
     u.password should have length 60
-    u.feed.isInstanceOf[Set[String]] should be (true)
+    u.feed.isInstanceOf[Map[String, String]] should be (true)
+    u.feed should be ('empty)
+  }
+  
+  it should "process user login successfully" in {
+    val u = getUser(randomRegLogin, randomPwd)
+    u._id.isInstanceOf[ObjectId] should be (true)
+    u.login should equal (randomRegLogin)
+    u.password should have length 60
+    u.feed.isInstanceOf[Map[String, String]] should be (true)
   }
 
   it should "create session successfully" in {
-    val user = getUser(login, pwd)
+    val user = getUser(randomRegLogin, randomPwd)
     val sid = getSessionId(user)
     sid should have length 36
   }
 
-  it should "register user successfully" in {
-    val u = registerUser
-    u._id.isInstanceOf[ObjectId] should be (true)
-    u.login should equal(randomRegLogin)
-    u.password should have length 60
-    u.feed.isInstanceOf[Set[String]] should be (true)
-    u.feed should be ('empty)
-  }
-
   it should "insert new RSS URL successfully" in {
-    val url = new URL("http://www.overclockers.ru/rss/lab.rss")
-    val user = getUser(login, pwd)
+    val url = new URL(rssUrl)
+    val user = getUser(randomRegLogin, randomPwd)
     val futureAdd = rssService.addRssUrl(url, user).asScala
     val result = Await.result(futureAdd, timeout)
-    result.isInstanceOf[WriteResult] should be (true)
+    result should be (true)
   }
 
-  after {
+  it should "download and parse news into the list" in {
+    val user = getUser(randomRegLogin, randomPwd)
+    val futureNews = rssService.loadNews(user).asScala
+    val result = Await.result(futureNews, timeout)
+    result.size should be > 0
+  }
+
+  override def afterAll() = {
     userRepo.removeBy(MongoDBObject("login" -> randomRegLogin))
     urlRepo.removeBy(MongoDBObject("url" -> rssUrl))
-    userRepo.pull(
-      MongoDBObject("login" -> login),
-      Map[String, String]("feed" -> rssUrl)
-    )
+  }
+
+  def registerUser(login: String, password: String): User = {
+    val regForm = RegForm(login, password)
+    val futureReg = userService.createUser(regForm).asScala
+    Await.result(futureReg, timeout).get
   }
 
   def getUser(login: String, password: String): User = {
@@ -86,12 +96,6 @@ class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfter 
   def getSessionId(u: User): String = {
     val futureSession = sessionService.createSession(u).asScala
     Await.result(futureSession, timeout).get
-  }
-
-  def registerUser: User = {
-    val regForm = RegForm(randomRegLogin, "password")
-    val futureReg = userService.createUser(regForm).asScala
-    Await.result(futureReg, timeout).get
   }
 
 }
