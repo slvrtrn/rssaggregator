@@ -23,7 +23,7 @@ class UserServiceImpl(implicit val inj: Injector) extends UserService with Injec
   }
 
   def checkUserExistence(login: String): Future[Boolean] = {
-    userRepo.findOne("login" $eq login) map {
+    userRepo.findByLogin(login) map {
       case Some(user: User) => true
       case _ => false
     }
@@ -40,7 +40,7 @@ class UserServiceImpl(implicit val inj: Injector) extends UserService with Injec
   }
 
   def checkLogin(form: LoginForm): Future[Option[User]] = {
-    userRepo.findOne("login" $eq form.login) map {
+    userRepo.findByLogin(form.login) map {
       case Some(u: User) =>
         checkPassword(form.password, u) match {
           case true => Some(u)

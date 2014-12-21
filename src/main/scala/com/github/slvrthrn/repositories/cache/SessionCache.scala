@@ -25,15 +25,17 @@ class SessionCache(implicit val inj: Injector) extends InjectHelper {
 
   def set(session: Session): Future[Boolean] = {
     val json = grater[Session].toCompactJSON(session)
-    client.set(session.id, json)
+    client.set(cacheKey(session.id), json)
   }
 
   def get(key: String): Future[Option[Session]] = {
-    val json: Future[Option[String]] = client.get(key)
+    val json: Future[Option[String]] = client.get(cacheKey(key))
     json map {
       case Some(s: String) => Some(grater[Session].fromJSON(s))
       case _ => None
     }
   }
+
+  private def cacheKey(key: String) = "sessions_id." + key
 
 }

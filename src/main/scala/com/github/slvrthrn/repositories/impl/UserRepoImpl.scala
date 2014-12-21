@@ -13,4 +13,6 @@ import scaldi.Injector
  */
 class UserRepoImpl(implicit val inj: Injector) extends UserRepo with InjectHelper{
 
+  def findByLogin(login: String): Future[Option[User]] = findOne(MongoDBObject("login" -> login))
+
 }

@@ -79,26 +79,26 @@ class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfterA
     result.isInstanceOf[RssUrl] should be (true)
   }
 
-  it should "download and parse news into the list" in {
+  it should "download and parse news into the sequence" in {
     val user = getUser(randomRegLogin, randomPwd)
     val futureNews = rssService.loadNews(user).asScala
     val result = Await.result(futureNews, awaitTimeout)
     result.size should be > 0
   }
 
-  it should "serialize and deserialize Option[User] and Seq[User] via json4s" in {
-    val optionUser = Some(getUser(randomRegLogin, randomPwd))
-    val seqOfUsers = Seq(optionUser, optionUser)
-    val optionSer = write(optionUser)
-    val seqSer = write(seqOfUsers)
-    val user = read[Option[User]](optionSer).get
-    user.isInstanceOf[User] should be (true)
-    user.login should equal(randomRegLogin)
-    user.password should have length 60
-    val seq = read[Seq[User]](seqSer)
-    seq.isInstanceOf[Seq[User]] should be (true)
-    seq should have length 2
-  }
+//  it should "serialize and deserialize Option[User] and Seq[User] via json4s" in {
+//    val optionUser = Some(getUser(randomRegLogin, randomPwd))
+//    val seqOfUsers = Seq(optionUser, optionUser)
+//    val optionSer = write(optionUser)
+//    val seqSer = write(seqOfUsers)
+//    val user = read[Option[User]](optionSer).get
+//    user.isInstanceOf[User] should be (true)
+//    user.login should equal(randomRegLogin)
+//    user.password should have length 60
+//    val seq = read[Seq[User]](seqSer)
+//    seq.isInstanceOf[Seq[User]] should be (true)
+//    seq should have length 2
+//  }
 
   override def afterAll() = {
     userRepo.removeBy("login" $eq randomRegLogin)

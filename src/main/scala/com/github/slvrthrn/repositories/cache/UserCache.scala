@@ -12,23 +12,51 @@ import scaldi.Injector
  */
 class UserCache(implicit inj: Injector) extends UserRepoImpl with Cache {
 
-  private val userCache = cacheFor[Option[User]]("users")
+  private val userLoginCache = cacheFor[Option[User]]("users_login")
+
+  private val userIdCache = cacheFor[Option[User]]("users_id")
+
+//  override def findById(id: ObjectId): Future[Option[User]] = {
+//    userCache.findOneOrElseUpdate(id) {
+//      super.findById(id)
+//    }
+//  }
+//
+//  override def findOne(filter: MongoDBObject): Future[Option[User]] = {
+//    userCache.findOneOrElseUpdate(filter) {
+//      super.findOne(filter)
+//    }
+//  }
+//
+//  override def save(entity: User): Future[User] = {
+//    super.save(entity) onSuccess {
+//      case user: User => userCache.save(entity._id, user)
+//    }
+//  }
+
+//  override def saveTraversable(seq: Seq[User]): Future[Seq[User]] = {
+//    super.saveTraversable(seq) onSuccess {
+//      case seq: Seq => userCache.saveTraversable()
+//    }
+//  }
 
   override def findById(id: ObjectId): Future[Option[User]] = {
-    userCache.getOrElseUpdate(id) {
+    userIdCache.getOrElseUpdate(id) {
       super.findById(id)
     }
   }
 
-  override def findOne(filter: MongoDBObject): Future[Option[User]] = {
-    userCache.getOrElseUpdate(filter) {
-      super.findOne(filter)
+  override def findByLogin(login: String): Future[Option[User]] = {
+    userLoginCache.getOrElseUpdate(login) {
+      super.findByLogin(login)
     }
   }
 
   override def save(entity: User): Future[User] = {
     super.save(entity) onSuccess {
-      case u: User => userCache.save(entity._id, Some(u))
+      case user: User =>
+        userIdCache.evict(entity._id)
+        userLoginCache.save(entity.login, Some(user))
     }
   }
 

@@ -42,7 +42,7 @@ trait MongoDaoRepository[O <: MongoEntity] { self: InjectHelper =>
    * @param t
    * @return
    */
-  def saveT(t: Traversable[O]): Future[Traversable[O]] = Future {
+  def saveTraversable(t: Traversable[O]): Future[Traversable[O]] = Future {
     dao.insert(t)
     t
   }
