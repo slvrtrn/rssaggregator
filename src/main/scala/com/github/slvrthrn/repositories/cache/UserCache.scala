@@ -16,30 +16,6 @@ class UserCache(implicit inj: Injector) extends UserRepoImpl with Cache {
 
   private val userIdCache = cacheFor[Option[User]]("users_id")
 
-//  override def findById(id: ObjectId): Future[Option[User]] = {
-//    userCache.findOneOrElseUpdate(id) {
-//      super.findById(id)
-//    }
-//  }
-//
-//  override def findOne(filter: MongoDBObject): Future[Option[User]] = {
-//    userCache.findOneOrElseUpdate(filter) {
-//      super.findOne(filter)
-//    }
-//  }
-//
-//  override def save(entity: User): Future[User] = {
-//    super.save(entity) onSuccess {
-//      case user: User => userCache.save(entity._id, user)
-//    }
-//  }
-
-//  override def saveTraversable(seq: Seq[User]): Future[Seq[User]] = {
-//    super.saveTraversable(seq) onSuccess {
-//      case seq: Seq => userCache.saveTraversable()
-//    }
-//  }
-
   override def findById(id: ObjectId): Future[Option[User]] = {
     userIdCache.getOrElseUpdate(id) {
       super.findById(id)

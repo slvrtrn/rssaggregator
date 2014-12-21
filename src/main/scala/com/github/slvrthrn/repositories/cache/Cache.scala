@@ -31,46 +31,6 @@ case class CacheBuilder[A <: AnyRef](namespace: String, redisClient: RedisClient
 
   private implicit val formats: Formats = DefaultFormats + new ObjectIdSerializer
 
-//  def findOrElseUpdate(key: Any)(orElse: => Future[Seq[A]]): Future[Seq[A]] = {
-//    val cached = client.get[String](cacheKey(key)).asTwitter
-//    cached flatMap {
-//      case Some(str: String) => Future value read[Seq[A]](str)
-//      case _ => orElse onSuccess {
-//        case seq: Seq[A] => saveTraversable(key, seq)
-//        case _ => Future value Seq()
-//      }
-//    }
-//  }
-
-//  def findOneOrElseUpdate(key: Any)(orElse: => Future[Option[A]]): Future[Option[A]] = {
-//    val cached = client.get[String](cacheKey(key)).asTwitter
-//    cached flatMap {
-//      case Some(str: String) => Future value read[Option[A]](str)
-//      case _ => orElse onSuccess {
-//        case Some(inst: A) => Some(save(key, inst))
-//        case _ => Future value None
-//      }
-//    }
-//  }
-//
-//  def save(key: Any, inst: A): Future[A] = {
-//    val str = write[A](inst)
-//    Future {
-//      client.set(cacheKey(key), str)
-//      inst
-//    }
-//  }
-//
-//  def saveTraversable(key: Any, seq: Seq[A]): Future[Seq[A]] = {
-//    val str = write[Seq[A]](seq)
-//    Future {
-//      client.set(cacheKey(key), str)
-//      seq
-//    }
-//  }
-//
-//  private def cacheKey(key: Any) = namespace + "." + key.toString
-
   def getOrElseUpdate(key: Any)(orElse: => Future[A]): Future[A] = {
     val cached = client.get[String](cacheKey(key)).asTwitter
     cached flatMap {
