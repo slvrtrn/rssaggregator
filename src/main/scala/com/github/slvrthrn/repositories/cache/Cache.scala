@@ -7,7 +7,7 @@ import com.github.slvrthrn.utils.InjectHelper
 import com.redis.RedisClient
 import com.twitter.util.Future
 import org.json4s._
-import org.json4s.native.Serialization
+import org.json4s.mongo.ObjectIdSerializer
 import org.json4s.native.Serialization.{read, write}
 
 import scala.concurrent.duration.Duration
@@ -29,7 +29,7 @@ case class CacheBuilder[A <: AnyRef](namespace: String, redisClient: RedisClient
 
   protected implicit val timeout = Timeout(Duration(5, TimeUnit.SECONDS))
 
-  protected implicit val formats = Serialization.formats(NoTypeHints)
+  protected implicit val formats: Formats = DefaultFormats + new ObjectIdSerializer
 
   def getOrElseUpdate(key: Any)(orElse: => Future[A]): Future[A] = {
     val cachedF = client.get[String](cacheKey(key)).asTwitter
