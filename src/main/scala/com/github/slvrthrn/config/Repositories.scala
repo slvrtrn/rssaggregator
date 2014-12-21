@@ -9,8 +9,8 @@ import scaldi.Module
  * Created by slvr on 12/6/14.
  */
 class Repositories extends Module {
-  //bind [UserRepo] to new UserCache
-  bind [UserRepo] to new UserRepoImpl
+  bind [UserRepo] to new UserCache
+  //bind [UserRepo] to new UserRepoImpl
   bind [RssUrlRepo] to new RssUrlRepoImpl
   bind [RssNewsRepo] to new RssNewsRepoImpl
 }

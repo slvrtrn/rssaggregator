@@ -47,13 +47,17 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
         val result = urlSeq map (
           rssUrl => {
             if (Seconds.secondsBetween(rssUrl.lastUpdate, now).getSeconds > 60)
-              Future { (XML.load(rssUrl.url) \\ "item").map(buildNews(_, rssUrl._id)).toSeq }
-            else
-              Future value Seq()
+              Future {
+                val res = (XML.load(rssUrl.url) \\ "item").map(buildNews(_, rssUrl._id)).toSeq
+                urlRepo.save(rssUrl.copy(lastUpdate = now))
+                newsRepo.removeBy("parent" $eq rssUrl.url)
+                newsRepo.saveT(res)
+                res
+              }
+            else Future value Seq()
           })
         Future.collect(result).map(_.flatten)
       })
-      _ <- newsRepo.saveT(news)
     } yield news
   }
 

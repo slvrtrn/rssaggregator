@@ -12,17 +12,6 @@ import com.github.slvrthrn.utils.Twitter._
  */
 class UserCache(implicit inj: Injector) extends UserRepoImpl with Cache {
 
-//  private val client: RedisClient = inject[RedisClient]
-//
-//  private implicit val timeout = Timeout(Duration(5, TimeUnit.SECONDS))
-//
-//  override def findById(id: ObjectId): Future[Option[User]] = {
-//    client.get[String](id.toString).asTwitter flatMap {
-//      case Some(s: String) => Future value Some(grater[User].fromJSON(s))
-//      case _ => super.findById(id)
-//    }
-//  }
-
   private val userCache = cacheFor[Option[User]]("users")
 
   override def findById(id: ObjectId): Future[Option[User]] = {
