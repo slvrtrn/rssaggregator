@@ -12,9 +12,9 @@ import scaldi.Injector
  */
 class UserCache(implicit inj: Injector) extends UserRepoImpl with Cache {
 
-  private val userLoginCache = cacheFor[Option[User]]("users_login")
+  private val userLoginCache = cacheFor[Option[User]]("usersLogin")
 
-  private val userIdCache = cacheFor[Option[User]]("users_id")
+  private val userIdCache = cacheFor[Option[User]]("usersId")
 
   override def findById(id: ObjectId): Future[Option[User]] = {
     userIdCache.getOrElseUpdate(id) {

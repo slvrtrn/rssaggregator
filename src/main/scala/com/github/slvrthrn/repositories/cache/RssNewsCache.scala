@@ -11,11 +11,17 @@ import scaldi.Injector
  */
 class RssNewsCache(implicit inj: Injector) extends RssNewsRepoImpl with Cache {
 
-  val rssNewsParentCache = cacheFor[Seq[RssNews]]("rssNews")
+  val rssNewsParentCache = cacheFor[Seq[RssNews]]("rssNewsParent")
 
   override def findByParent(parent: ObjectId): Future[Seq[RssNews]] = {
     rssNewsParentCache.getOrElseUpdate(parent) {
       super.findByParent(parent)
+    }
+  }
+
+  override def removeByParent(parent: ObjectId): Future[Boolean] = {
+    super.removeByParent(parent) onSuccess {
+      case result: Boolean => if (result) rssNewsParentCache.evict(parent)
     }
   }
 

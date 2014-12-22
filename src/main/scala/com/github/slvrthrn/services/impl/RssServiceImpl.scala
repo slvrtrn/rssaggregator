@@ -40,7 +40,7 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
   }
 
   def loadNews(user: User): Future[Seq[RssNews]] = {
-    val urls = urlRepo.find("_id" $in user.feed)
+    val urls = urlRepo.findByUser(user)
     val now = new DateTime
     for {
       news <- urls flatMap ( urlSeq => {
@@ -49,7 +49,7 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
               Future {
                 val res = (XML.load(rssUrl.url) \\ "item").map(buildNews(_, rssUrl._id)).toSeq
                 urlRepo.save(rssUrl.copy(lastUpdate = now))
-                newsRepo.removeBy("parent" $eq rssUrl.url)
+                newsRepo.removeByParent(rssUrl._id)
                 newsRepo.saveTraversable(res)
                 res
               }
@@ -68,7 +68,7 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
   )
 
   private def checkRssUrlExistence(url: String): Future[Boolean] = {
-    urlRepo.findOne("url" $eq url) map {
+    urlRepo.findByUrl(url) map {
       case Some(url: RssUrl) => true
       case _ => false
     }
