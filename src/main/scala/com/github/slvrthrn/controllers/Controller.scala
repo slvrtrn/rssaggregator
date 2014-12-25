@@ -5,12 +5,12 @@ import java.util.concurrent.TimeUnit
 import com.github.slvrthrn.filters.AuthRequest
 import com.github.slvrthrn.models.entities.User
 import com.github.slvrthrn.repositories.UserRepo
-import com.novus.salat._
-import com.novus.salat.global._
 import com.twitter.finagle.http.Cookie
 import com.twitter.finatra.{Controller => FController, ResponseBuilder, Request => FinatraRequest}
 import com.twitter.util.{Duration, Future}
 import com.github.slvrthrn.utils.InjectHelper
+import org.json4s.{DefaultFormats, Formats}
+import org.json4s.native.Serialization.write
 
 import scala.concurrent.ExecutionContext
 
@@ -23,14 +23,21 @@ trait Controller extends FController with InjectHelper {
 
   protected implicit val executionContext = inject[ExecutionContext]
 
-  def renderJson[T<:AnyRef](data: T)(implicit m: Manifest[T]): Future[ResponseBuilder] = {
-    val json = grater[T].toCompactJSON(data)
+  protected implicit val formats: Formats = DefaultFormats
+
+  def renderJson[T<:AnyRef](data: T): Future[ResponseBuilder] = {
+    val json = write(data)
     render.plain(json).header("Content-Type","application/json").toFuture
   }
 
-  def renderJsonArray[T<:AnyRef](data: Traversable[T])(implicit m: Manifest[T]): Future[ResponseBuilder] = {
-    val json = grater[T].toCompactJSONArray(data)
+  def renderJsonArray[T<:AnyRef](data: Traversable[T]): Future[ResponseBuilder] = {
+    val json = write(data)
     render.plain(json).header("Content-Type","application/json").toFuture
+  }
+
+  def renderJsonError[T<:AnyRef](errors: Traversable[ErrorPayload], status: Int): Future[ResponseBuilder] = {
+    val json = write(errors)
+    render.plain(json).status(status).toFuture
   }
 
   def withUserContext(f: User => Future[ResponseBuilder])(implicit request: FinatraRequest): Future[ResponseBuilder] = {
@@ -38,17 +45,24 @@ trait Controller extends FController with InjectHelper {
       case req: AuthRequest =>
         userRepo.findById(req.session.uid) flatMap {
           case Some(u: User) => f(u)
-          case _ => sessionError("Cannot find user with UID stored in session")
+          case _ =>
+            val errors = Seq(
+              ErrorPayload(
+                userMessage = "Invalid session cookie. You will be redirected",
+                internalMessage = "Cannot find user with UID stored in session")
+            )
+            renderJsonError(errors, 403)
         }
-      case _ => sessionError("There is no session in request")
+      case _ =>
+        val errors = Seq(
+          ErrorPayload(
+            userMessage = "Invalid session cookie. You will be redirected",
+            internalMessage = "There is no session in request")
+        )
+        renderJsonError(errors, 403)
     }
   }
 
-  private def sessionError(s: String): Future[ResponseBuilder] = {
-    val expired = new Cookie("sid", "")
-    expired.maxAge = Duration(-42, TimeUnit.DAYS)
-    render.plain(s).cookie(expired).toFuture
-    renderJson(s)
-  }
-
 }
+
+case class ErrorPayload(userMessage: String, internalMessage: String)

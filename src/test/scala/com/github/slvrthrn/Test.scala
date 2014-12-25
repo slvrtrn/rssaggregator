@@ -71,11 +71,19 @@ class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfterA
     sid should have length 36
   }
 
-  it should "insert new RSS URL successfully" in {
-    val url = new URL(rssUrl)
+  it should "insert new RSS URL successfully and then delete it with ObjectId" in {
     val user = getUser(randomRegLogin, randomPwd)
-    val futureAdd = rssService.addRssUrl(url, user).asScala
-    val result = Await.result(futureAdd, awaitTimeout).get
+    val url = insertRssUrl(rssUrl, user)
+    url.isInstanceOf[RssUrl] should be (true)
+    val updatedUser = getUser(randomRegLogin, randomPwd)
+    val futureRemove = rssService.removeRssUrl(url._id.toString, updatedUser).asScala
+    val result = Await.result(futureRemove, awaitTimeout)
+    result should be (true)
+  }
+
+  it should "insert new RSS URL successfully again" in {
+    val user = getUser(randomRegLogin, randomPwd)
+    val result = insertRssUrl(rssUrl, user)
     result.isInstanceOf[RssUrl] should be (true)
   }
 
@@ -121,6 +129,12 @@ class Test extends FlatSpec with Matchers with InjectHelper with BeforeAndAfterA
   def getSessionId(u: User): String = {
     val futureSession = sessionService.createSession(u).asScala
     Await.result(futureSession, awaitTimeout).get
+  }
+
+  def insertRssUrl(rssUrl: String, user: User): RssUrl = {
+    val url = new URL(rssUrl: String)
+    val futureAdd = rssService.addRssUrl(url, user).asScala
+    Await.result(futureAdd, awaitTimeout).get
   }
 
 }

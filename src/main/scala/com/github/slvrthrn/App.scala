@@ -2,7 +2,7 @@ package com.github.slvrthrn
 
 import com.twitter.finatra.FinatraServer
 import com.github.slvrthrn.config.BindingsProvider
-import com.github.slvrthrn.controllers.{Auth, Index}
+import com.github.slvrthrn.controllers.{AuthController, IndexController}
 import com.github.slvrthrn.filters.IndexFilter
 
 /**
@@ -14,7 +14,7 @@ object App extends FinatraServer {
 
   addFilter(new IndexFilter)
 
-  register(new Index)
-  register(new Auth)
+  register(new IndexController)
+  register(new AuthController)
 
 }

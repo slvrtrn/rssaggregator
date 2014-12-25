@@ -6,7 +6,7 @@ import scaldi.{Injectable, Injector}
 /**
  * Created by slvr on 12/6/14.
  */
-class Index(implicit val inj: Injector) extends Controller with Injectable {
+class IndexController(implicit val inj: Injector) extends Controller with Injectable {
 
   get("/") { implicit request =>
 

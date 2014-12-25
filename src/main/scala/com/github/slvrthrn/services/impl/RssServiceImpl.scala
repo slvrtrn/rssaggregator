@@ -29,13 +29,40 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
 
   def addRssUrl(url: URL, user: User): Future[Option[RssUrl]] = {
     val urlStr  = url.toString
-    checkRssUrlExistence(urlStr) map {
-      case true => None
-      case false =>
+    val checkDb = checkRssUrlExitestence(urlStr)
+    checkDb map {
+      case Some(rssUrl: RssUrl) =>
+        val checkFeed = user.feed contains rssUrl._id
+        checkFeed match {
+          case true => None
+          case false =>
+            userRepo.save(user.copy(feed = user.feed + rssUrl._id))
+            Some(rssUrl)
+        }
+      case _ =>
         val rssUrl = RssUrl(urlStr)
         userRepo.save(user.copy(feed = user.feed + rssUrl._id))
         urlRepo.save(rssUrl)
         Some(rssUrl)
+    }
+  }
+
+//  def removeRssUrl(id: String): Future[Boolean] = {
+//    val rssUrl = urlRepo.findById(new ObjectId(id))
+//    rssUrl flatMap {
+//      case Some(url: RssUrl) => urlRepo.remove(url)
+//      case _ => Future value false
+//    }
+//  }
+
+  def removeRssUrl(id: String, user: User): Future[Boolean] = {
+    val objectId = new ObjectId(id)
+    val newFeed = user.feed.filterNot(_ == objectId)
+    newFeed equals user.feed match {
+      case true => Future value false
+      case false =>
+        userRepo.save(user.copy(feed = newFeed))
+        Future value true
     }
   }
 
@@ -60,6 +87,8 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
     } yield news
   }
 
+  def getNewsById(id: String): Future[Option[RssNews]] = newsRepo.findById(new ObjectId(id))
+
   private def buildNews(node: Node, id: ObjectId): RssNews = new RssNews(
     title = (node \\ "title").text,
     link = (node \\ "link").text,
@@ -67,10 +96,10 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
     parent = id
   )
 
-  private def checkRssUrlExistence(url: String): Future[Boolean] = {
+  private def checkRssUrlExitestence(url: String): Future[Option[RssUrl]] = {
     urlRepo.findByUrl(url) map {
-      case Some(url: RssUrl) => true
-      case _ => false
+      case Some(url: RssUrl) => Some(url)
+      case _ => None
     }
   }
 

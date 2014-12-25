@@ -12,6 +12,10 @@ trait RssService {
 
   def addRssUrl(url: URL, user: User): Future[Option[RssUrl]]
 
+  def removeRssUrl(id: String, user: User): Future[Boolean]
+
   def loadNews(user: User): Future[Seq[RssNews]]
+
+  def getNewsById(id: String): Future[Option[RssNews]]
 
 }

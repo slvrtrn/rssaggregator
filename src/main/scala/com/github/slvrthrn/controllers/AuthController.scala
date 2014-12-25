@@ -11,7 +11,7 @@ import scaldi.Injector
 /**
  * Created by slvr on 12/6/14.
  */
-class Auth(implicit val inj: Injector) extends Controller {
+class AuthController(implicit val inj: Injector) extends Controller {
 
   val userService = inject[UserService]
   val sessionService = inject[SessionService]

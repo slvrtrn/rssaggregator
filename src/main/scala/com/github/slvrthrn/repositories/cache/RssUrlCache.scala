@@ -3,6 +3,7 @@ package com.github.slvrthrn.repositories.cache
 import com.github.slvrthrn.models.entities.{User, RssUrl}
 import com.github.slvrthrn.repositories.impl.RssUrlRepoImpl
 import com.twitter.util.Future
+import org.bson.types.ObjectId
 import scaldi.Injector
 
 /**
@@ -10,12 +11,14 @@ import scaldi.Injector
  */
 class RssUrlCache(implicit inj: Injector) extends RssUrlRepoImpl with Cache {
 
-  val rssUrlSeqCache = cacheFor[Seq[RssUrl]]("rssUrlSeq")
+  val rssUrlSeqCache = cacheFor[Seq[RssUrl]]("rssUrlSeqByUserId")
 
-  val rssUrlOptionCache = cacheFor[Option[RssUrl]]("rssUrlOption")
+  val rssUrlOptionUrlCache = cacheFor[Option[RssUrl]]("rssUrlOptionByUrl")
+  
+  val rssUrlOptionIdCache = cacheFor[Option[RssUrl]]("rssUrlOptionById")
 
   override def findByUrl(url: String): Future[Option[RssUrl]] = {
-    rssUrlOptionCache.getOrElseUpdate(url) {
+    rssUrlOptionUrlCache.getOrElseUpdate(url) {
       super.findByUrl(url)
     }
   }
@@ -26,9 +29,27 @@ class RssUrlCache(implicit inj: Injector) extends RssUrlRepoImpl with Cache {
     }
   }
 
+  override def findById(id: ObjectId): Future[Option[RssUrl]] = {
+    rssUrlOptionIdCache.getOrElseUpdate(id) {
+      super.findById(id)
+    }
+  }
+
+//  override def remove(entity: RssUrl): Future[Boolean] = {
+//    super.remove(entity) onSuccess {
+//      case result: Boolean =>
+//        if (result) {
+//          rssUrlOptionIdCache.evict(entity._id)
+//          rssUrlOptionUrlCache.evict(entity.url)
+//        }
+//    }
+//  }
+
   override def save(url: RssUrl): Future[RssUrl] = {
     super.save(url) onSuccess {
-      case rss: RssUrl => rssUrlOptionCache.save(rss.url, Some(rss))
+      case rss: RssUrl =>
+        rssUrlOptionIdCache.evict(rss._id)
+        rssUrlOptionUrlCache.save(rss.url, Some(rss))
     }
   }
 
