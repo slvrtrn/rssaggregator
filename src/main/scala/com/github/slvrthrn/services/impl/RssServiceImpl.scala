@@ -12,6 +12,7 @@ import scaldi.Injector
 import com.mongodb.casbah.Imports._
 
 import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success, Try}
 import scala.xml.{Node, XML}
 
 /**
@@ -47,14 +48,6 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
     }
   }
 
-//  def removeRssUrl(id: String): Future[Boolean] = {
-//    val rssUrl = urlRepo.findById(new ObjectId(id))
-//    rssUrl flatMap {
-//      case Some(url: RssUrl) => urlRepo.remove(url)
-//      case _ => Future value false
-//    }
-//  }
-
   def removeRssUrl(id: String, user: User): Future[Boolean] = {
     val objectId = new ObjectId(id)
     val newFeed = user.feed.filterNot(_ == objectId)
@@ -66,28 +59,39 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
     }
   }
 
-  def loadNews(user: User): Future[Seq[RssNews]] = {
-    val urls = urlRepo.findByUser(user)
+  def getNewsById(id: String): Future[Option[RssNews]] = newsRepo.findById(new ObjectId(id))
+
+  def getNews(user: User): Future[Seq[RssNews]] = {
     val now = new DateTime
     for {
-      news <- urls flatMap ( urlSeq => {
-        val result = urlSeq map ( rssUrl => {
-            if (Seconds.secondsBetween(rssUrl.lastUpdate, now).getSeconds > 60)
-              Future {
-                val res = (XML.load(rssUrl.url) \\ "item").map(buildNews(_, rssUrl._id)).toSeq
-                urlRepo.save(rssUrl.copy(lastUpdate = now))
-                newsRepo.removeByParent(rssUrl._id)
-                newsRepo.saveTraversable(res)
-                res
-              }
-            else Future value Seq()
-          })
-        Future.collect(result).map(_.flatten)
-      })
+      urls <- urlRepo.findByUser(user)
+      news <- (Future collect urls.map { rssUrl =>
+        if (Seconds.secondsBetween(rssUrl.lastUpdate, now).getSeconds > 60)
+          loadNews(rssUrl)
+        else
+          newsRepo.findByParent(rssUrl._id)
+      }).map(_.flatten)
     } yield news
   }
 
-  def getNewsById(id: String): Future[Option[RssNews]] = newsRepo.findById(new ObjectId(id))
+  private def loadNews(rssUrl: RssUrl): Future[Seq[RssNews]] = {
+    Future {
+      Try(XML.load(rssUrl.url))
+    }.flatMap {
+      case Success(xml) =>
+        val freshNews = (xml \\ "items").map(buildNews(_, rssUrl._id)).toSeq
+        saveNewsSeq(freshNews, rssUrl)
+      case Failure(e) => newsRepo.findByParent(rssUrl._id)
+    }
+  }
+
+  private def saveNewsSeq(freshNews: Seq[RssNews], rssUrl: RssUrl): Future[Seq[RssNews]] = {
+    for {
+      _ <- newsRepo.removeByParent(rssUrl._id)
+      _ <- urlRepo.save(rssUrl.copy(lastUpdate = new DateTime))
+      news <- newsRepo.saveTraversable(freshNews)
+    } yield news.toSeq // ???
+  }
 
   private def buildNews(node: Node, id: ObjectId): RssNews = new RssNews(
     title = (node \\ "title").text,

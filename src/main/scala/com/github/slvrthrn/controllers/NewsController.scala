@@ -13,7 +13,7 @@ class NewsController(implicit val inj: Injector) extends Controller {
 
   get("/api/v1/news") { implicit request =>
     withUserContext { user =>
-      val result = rssService.loadNews(user)
+      val result = rssService.getNews(user)
       result flatMap {
         case news: Seq[RssNews] => renderJsonArray(news)
       }

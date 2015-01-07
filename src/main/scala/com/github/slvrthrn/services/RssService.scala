@@ -14,7 +14,7 @@ trait RssService {
 
   def removeRssUrl(id: String, user: User): Future[Boolean]
 
-  def loadNews(user: User): Future[Seq[RssNews]]
+  def getNews(user: User): Future[Seq[RssNews]]
 
   def getNewsById(id: String): Future[Option[RssNews]]
 
