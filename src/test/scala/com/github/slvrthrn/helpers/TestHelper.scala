@@ -16,6 +16,7 @@ import com.redis.protocol.KeyCommands
 import com.twitter.util.Future
 import com.typesafe.config.Config
 import com.github.slvrthrn.utils.Twitter._
+import org.json4s.native.Serialization._
 import scala.concurrent.{Future => ScalaFuture}
 
 import scala.concurrent.Await

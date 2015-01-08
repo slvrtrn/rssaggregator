@@ -79,7 +79,7 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
       Try(XML.load(rssUrl.url))
     }.flatMap {
       case Success(xml) =>
-        val freshNews = (xml \\ "items").map(buildNews(_, rssUrl._id)).toSeq
+        val freshNews = (xml \\ "item").map(buildNews(_, rssUrl._id)).toSeq
         saveNewsSeq(freshNews, rssUrl)
       case Failure(e) => newsRepo.findByParent(rssUrl._id)
     }

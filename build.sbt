@@ -28,3 +28,5 @@ Revolver.settings
 Revolver.enableDebugging(port = 5005, suspend = false)
 
 mainClass in Revolver.reStart := Some("com.github.slvrthrn.App")
+
+parallelExecution in Test := false

@@ -10,12 +10,16 @@ import org.scalatest._
  */
 class RssTest extends FlatSpec with Matchers with BeforeAndAfterAll {
 
-  val helper = new TestHelper
-  val randomRegLogin = helper.randomRegLogin
-  val randomPwd = helper.randomRegPwd
-  val rssUrl = helper.getRssUrl
+  var helper: TestHelper = _
+  var randomRegLogin: String = _
+  var randomPwd: String = _
+  var rssUrl: String = _
 
   override def beforeAll() = {
+    helper = new TestHelper
+    randomRegLogin = helper.randomRegLogin
+    randomPwd = helper.randomRegPwd
+    rssUrl = helper.getRssUrl
     helper.registerUser(randomRegLogin, randomPwd)
   }
 
