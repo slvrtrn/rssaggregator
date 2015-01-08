@@ -8,6 +8,7 @@ import org.scalatest._
 /**
  * Created by slvr on 1/8/15.
  */
+//@Ignore
 class RssTest extends FlatSpec with Matchers with BeforeAndAfterAll {
 
   var helper: TestHelper = _

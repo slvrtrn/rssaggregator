@@ -2,11 +2,12 @@ package com.github.slvrthrn.tests.service
 
 import com.github.slvrthrn.helpers.TestHelper
 import org.bson.types.ObjectId
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+import org.scalatest.{Ignore, BeforeAndAfterAll, FlatSpec, Matchers}
 
 /**
  * Created by slvr on 1/8/15.
  */
+//@Ignore
 class AuthTest extends FlatSpec with Matchers with BeforeAndAfterAll {
 
   val helper = new TestHelper

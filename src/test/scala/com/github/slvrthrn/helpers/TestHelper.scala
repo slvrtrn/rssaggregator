@@ -13,10 +13,12 @@ import com.github.slvrthrn.utils.InjectHelper
 import com.mongodb.casbah.Imports._
 import com.redis.RedisClient
 import com.redis.protocol.KeyCommands
+import com.twitter.finagle.http.Cookie
+import com.twitter.finatra.test.MockResponse
 import com.twitter.util.Future
 import com.typesafe.config.Config
 import com.github.slvrthrn.utils.Twitter._
-import org.json4s.native.Serialization._
+import org.jboss.netty.handler.codec.http.CookieDecoder
 import scala.concurrent.{Future => ScalaFuture}
 
 import scala.concurrent.Await
@@ -86,5 +88,17 @@ class TestHelper extends InjectHelper {
   def randomRegPwd: String = UUID.randomUUID.toString
 
   def getRssUrl: String = config.getString("test.default.rssUrl")
+
+  def cookie(name: String, response: MockResponse): Option[Cookie] = {
+    import scala.collection.JavaConverters._
+    val cookies = response.getHeaders.getAll("Set-Cookie").flatMap { encoded =>
+      new CookieDecoder().decode(encoded).asScala
+    }
+    cookies.find(_.getName == name).map(new Cookie(_))
+  }
+
+  def cookieValue(name: String, response: MockResponse): Option[String] = {
+    cookie(name, response).map(_.value)
+  }
 
 }
