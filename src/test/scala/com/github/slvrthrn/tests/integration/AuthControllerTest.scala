@@ -3,9 +3,12 @@ package com.github.slvrthrn.tests.integration
 import com.github.slvrthrn.config.BindingsProvider
 import com.github.slvrthrn.controllers.AuthController
 import com.github.slvrthrn.helpers.TestHelper
+import com.github.slvrthrn.models.forms.{LoginForm, RegForm}
 import com.twitter.finatra.FinatraServer
 import com.twitter.finatra.test.FlatSpecHelper
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
+import org.json4s.DefaultFormats
+import org.json4s.jackson.Serialization._
 import org.scalatest.{Ignore, BeforeAndAfterAll, Matchers}
 import scaldi.Injector
 
@@ -26,6 +29,7 @@ class AuthControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matc
     helper.clearCache
   }
 
+  implicit val formats = DefaultFormats
   implicit val inj: Injector = BindingsProvider.getBindings
   var helper: TestHelper = _
   var randomRegLogin: String = _
@@ -49,18 +53,43 @@ class AuthControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matc
     response.body should include ("<input name=\"password\" type=\"password\">")
   }
 
-  it should "register new user successfully via POST" in {
-    post("/reg", Map("login" -> randomRegLogin, "password" -> randomRegPwd))
+  it should "register new user successfully via POST JSON request and create new session" in {
+    val regForm = RegForm(login = randomRegLogin, password = randomRegPwd)
+    val json = write(regForm)
+    postJson("/reg", json)
+    val result = parseJson[String](response.body)
     response.status should equal (HttpResponseStatus.OK)
-    response.body should include ("User creation: success")
-  }
-
-  it should "login newly registered user via POST and create session" in {
-    post("/login", Map("login" -> randomRegLogin, "password" -> randomRegPwd))
-    response.status should equal (HttpResponseStatus.FOUND)
-    response.body should include ("Login is OK and session is created")
+    result should equal ("User creation: success")
     val sid = helper.cookieValue("sid", response).get
     sid should have length 36
+  }
+
+  it should "login newly registered user via POST JSON request and create new session" in {
+    val loginForm = LoginForm(login = randomRegLogin, password = randomRegPwd)
+    val json = write(loginForm)
+    postJson("/login", json)
+    val result = parseJson[String](response.body)
+    response.status should equal (HttpResponseStatus.OK)
+    result should equal ("Login is OK and session is created")
+    val sid = helper.cookieValue("sid", response).get
+    sid should have length 36
+  }
+
+  def parseJson[T](jsonString: String)(implicit m: Manifest[T]): T = {
+    try {
+      read[T](jsonString)
+    } catch {
+      case e: Exception => throw new Exception("can`t parse string [" + jsonString + "]", e)
+    }
+  }
+
+  def postJson(path: String, json: String = "", headers: Map[String, String] = Map()) = {
+    val headersWithContentType = headers ++ Map("Content-Type" -> "application/json")
+    post(
+      path = path,
+      body = json,
+      headers = headersWithContentType
+    )
   }
 
 }
