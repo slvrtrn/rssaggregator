@@ -35,16 +35,6 @@ class RssUrlCache(implicit inj: Injector) extends RssUrlRepoImpl with Cache {
     }
   }
 
-//  override def remove(entity: RssUrl): Future[Boolean] = {
-//    super.remove(entity) onSuccess {
-//      case result: Boolean =>
-//        if (result) {
-//          rssUrlOptionIdCache.evict(entity._id)
-//          rssUrlOptionUrlCache.evict(entity.url)
-//        }
-//    }
-//  }
-
   override def save(url: RssUrl): Future[RssUrl] = {
     super.save(url) onSuccess {
       case rss: RssUrl =>

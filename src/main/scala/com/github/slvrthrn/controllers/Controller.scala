@@ -25,17 +25,17 @@ trait Controller extends FController with InjectHelper {
 
   protected implicit val formats: Formats = DefaultFormats
 
-  def renderJson[T<:AnyRef](data: T): Future[ResponseBuilder] = {
+  def renderJson[T<:AnyRef](data: T)(implicit m: Manifest[T]): Future[ResponseBuilder] = {
     val json = write(data)
     render.plain(json).header("Content-Type","application/json").toFuture
   }
 
-  def renderJsonArray[T<:AnyRef](data: Traversable[T]): Future[ResponseBuilder] = {
+  def renderJsonArray[T<:AnyRef](data: Traversable[T])(implicit m: Manifest[Traversable[T]]): Future[ResponseBuilder] = {
     val json = write(data)
     render.plain(json).header("Content-Type","application/json").toFuture
   }
 
-  def renderJsonError[T<:AnyRef](errors: Traversable[ErrorPayload], status: Int): Future[ResponseBuilder] = {
+  def renderJsonError[T<:AnyRef](errors: Traversable[ErrorPayload], status: Int)(implicit m: Manifest[T]): Future[ResponseBuilder] = {
     val json = write(errors)
     render.plain(json).status(status).toFuture
   }

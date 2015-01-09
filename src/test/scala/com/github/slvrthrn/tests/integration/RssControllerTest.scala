@@ -4,7 +4,7 @@ import com.github.slvrthrn.config.BindingsProvider
 import com.github.slvrthrn.controllers.RssController
 import com.github.slvrthrn.filters.IndexFilter
 import com.github.slvrthrn.helpers.TestHelper
-import com.github.slvrthrn.models.entities.User
+import com.github.slvrthrn.models.entities.{RssUrl, User}
 import com.twitter.finatra.FinatraServer
 import com.twitter.finatra.test.FlatSpecHelper
 import org.bson.types.ObjectId
@@ -45,34 +45,35 @@ class RssControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Match
   var sid: String = _
 
   override def server = new TestServer {
-    //withUserContext(user)
-    addFilter(new IndexFilter)
+    withUserContext(user)
+    //addFilter(new IndexFilter)
     register(new RssController)
   }
 
   it should "add new RSS in user's feed" in {
     val json = write[String](rss)
-    postJson("/api/v1/urls", json, headers = Map("Cookie" -> s"sid=$sid"))
+    postJson("/api/v1/urls", json)
     response.status should equal (HttpResponseStatus.OK)
   }
 
   it should "show user's RSS subscriptions list" in {
-    get("/api/v1/urls", headers = Map("Cookie" -> s"sid=$sid"))
-    val result = parseJson[Seq[String]](response.body)
+    get("/api/v1/urls")
+    val rssUrl = helper.getRssUrl(rss)
+    val result = parseJson[Seq[RssUrl]](response.body)
     response.status should equal (HttpResponseStatus.OK)
     result should have size 1
-    result.head should equal (rss)
+    result.head.url should equal (rssUrl.url)
   }
 
   it should "delete RSS from user's subscriptions list" in {
     val updatedUser = helper.getUser(randomRegLogin, randomRegPwd)
-    delete(s"/api/v1/urls/${updatedUser.feed.head.toString}", headers = Map("Cookie" -> s"sid=$sid"))
+    delete(s"/api/v1/urls/${updatedUser.feed.head.toString}")
     response.status should equal (HttpResponseStatus.OK)
   }
 
   it should "response with 404 not found" in {
     val randomObjectId = new ObjectId().toString
-    delete(s"/api/v1/urls/$randomObjectId", headers = Map("Cookie" -> s"sid=$sid"))
+    delete(s"/api/v1/urls/$randomObjectId")
     response.status should equal (HttpResponseStatus.NOT_FOUND)
   }
 

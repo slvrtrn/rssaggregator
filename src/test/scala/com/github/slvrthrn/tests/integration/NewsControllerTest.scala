@@ -45,20 +45,20 @@ class NewsControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matc
   var sid: String = _
 
   override def server = new TestServer {
-    //withUserContext(user)
-    addFilter(new IndexFilter)
+    withUserContext(user)
+    //addFilter(new IndexFilter)
     register(new NewsController)
   }
 
   it should "render all news from user's subscription" in {
-    get("/api/v1/news", headers = Map("Cookie" -> s"sid=$sid"))
+    get("/api/v1/news")
     val result = parseJson[Seq[RssNews]](response.body)
     result.size should be > 0
   }
 
   it should "render specific news item" in {
     val item = helper.getNews(user).head
-    get(s"/api/v1/news/${item._id.toString}", headers = Map("Cookie" -> s"sid=$sid"))
+    get(s"/api/v1/news/${item._id.toString}")
     val result = parseJson[RssNews](response.body)
     result.title should equal (item.title)
     result.link should equal (item.link)
@@ -67,12 +67,12 @@ class NewsControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matc
 
   it should "response with 404 not found" in {
     val randomObjectId = new ObjectId().toString
-    get(s"/api/v1/news/$randomObjectId", headers = Map("Cookie" -> s"sid=$sid"))
+    get(s"/api/v1/news/$randomObjectId")
     response.status should equal (HttpResponseStatus.NOT_FOUND)
   }
 
   it should "response with 400 bad request" in {
-    get("/api/v1/news/randomtext", headers = Map("Cookie" -> s"sid=$sid"))
+    get("/api/v1/news/randomtext")
     response.status should equal (HttpResponseStatus.BAD_REQUEST)
   }
 

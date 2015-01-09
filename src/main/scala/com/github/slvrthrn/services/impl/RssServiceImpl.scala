@@ -32,22 +32,22 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
   def addRssUrl(url: URL, user: User): Future[User] = {
     val urlStr  = url.toString
     val checkDb = checkRssUrlExitestence(urlStr)
-    checkDb map {
+    checkDb flatMap {
       case Some(rssUrl: RssUrl) =>
         val checkFeed = user.feed contains rssUrl._id
         checkFeed match {
-          case true => user
+          case true => Future value user
           case false =>
             val updatedUser = user.copy(feed = user.feed + rssUrl._id)
             userRepo.save(updatedUser)
-            updatedUser
         }
       case _ =>
         val rssUrl = RssUrl(urlStr)
         val updatedUser = user.copy(feed = user.feed + rssUrl._id)
-        userRepo.save(updatedUser)
-        urlRepo.save(rssUrl)
-        updatedUser
+        for {
+          _ <- urlRepo.save(rssUrl)
+          savedUser <- userRepo.save(updatedUser)
+        } yield savedUser
     }
   }
 
@@ -56,10 +56,13 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
     newFeed equals user.feed match {
       case true => Future value false
       case false =>
-        userRepo.save(user.copy(feed = newFeed))
-        Future value true
+        for {
+          _ <- userRepo.save(user.copy(feed = newFeed))
+        } yield true
     }
   }
+
+  def findRssUrlByUser(user: User): Future[Seq[RssUrl]] = urlRepo.findByUser(user)
 
   def getNewsById(id: ObjectId): Future[Option[RssNews]] = newsRepo.findById(id)
 

@@ -50,7 +50,7 @@ case class CacheBuilder[A <: AnyRef](namespace: String, redisClient: RedisClient
     }
   }
 
-  def evict(key: Any): Future[Long] = client.del(namespace + "." +cacheKey(key)).asTwitter
+  def evict(key: Any): Future[Long] = client.del(cacheKey(key)).asTwitter
 
   private def cacheKey(key: Any) = namespace + "." + key.toString
 

@@ -73,7 +73,8 @@ trait MongoDaoRepository[O <: MongoEntity] { self: InjectHelper =>
    * @return
    */
   def findById(id: ObjectId): Future[Option[O]] = Future {
-    dao.findOneById(id)
+    val res = dao.findOneById(id)
+    res
   }
 
   /**

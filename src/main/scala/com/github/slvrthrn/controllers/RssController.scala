@@ -20,8 +20,10 @@ class RssController(implicit val inj: Injector) extends Controller {
 
   get("/api/v1/urls") { implicit request =>
     withUserContext { user =>
-      val feed = user.feed
-      renderJson(feed)
+      val result = rssService.findRssUrlByUser(user)
+      result flatMap {
+        case seq: Seq[RssUrl] => renderJsonArray(seq)
+      }
     }
   }
 
