@@ -8,7 +8,7 @@ import com.github.slvrthrn.models.entities.User
 import com.twitter.finatra.FinatraServer
 import com.twitter.finatra.test.FlatSpecHelper
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
-import org.scalatest.{Matchers, BeforeAndAfterAll}
+import org.scalatest.{Ignore, Matchers, BeforeAndAfterAll}
 import scaldi.Injector
 
 /**

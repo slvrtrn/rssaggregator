@@ -1,11 +1,10 @@
 package com.github.slvrthrn.tests.integration
 
 import com.github.slvrthrn.config.BindingsProvider
-import com.github.slvrthrn.controllers.RssController
+import com.github.slvrthrn.controllers.NewsController
 import com.github.slvrthrn.filters.IndexFilter
 import com.github.slvrthrn.helpers.TestHelper
-import com.github.slvrthrn.models.entities.User
-import com.twitter.finatra.FinatraServer
+import com.github.slvrthrn.models.entities.{RssNews, User}
 import com.twitter.finatra.test.FlatSpecHelper
 import org.bson.types.ObjectId
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
@@ -15,23 +14,24 @@ import org.scalatest.{Ignore, Matchers, BeforeAndAfterAll}
 import scaldi.Injector
 
 /**
- * Created by slvr on 1/9/15.
+ * Created by slvr on 09.01.15.
  */
 //@Ignore
-class RssControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matchers {
+class NewsControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matchers {
 
   override def beforeAll() = {
     helper = new TestHelper
     randomRegLogin = helper.randomRegLogin
     randomRegPwd = helper.randomRegPwd
-    user = helper.registerUser(randomRegLogin, randomRegPwd)
     rss = helper.getRssUrlStrFromConfig()
+    user = helper.insertRssUrl(rss, helper.registerUser(randomRegLogin, randomRegPwd))
     sid = helper.getSessionId(user)
   }
 
   override def afterAll() = {
     helper.deleteUser(randomRegLogin)
     helper.deleteRssUrl(rss)
+    helper.clearNewsCollection
     helper.clearCache
   }
 
@@ -47,33 +47,33 @@ class RssControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Match
   override def server = new TestServer {
     //withUserContext(user)
     addFilter(new IndexFilter)
-    register(new RssController)
+    register(new NewsController)
   }
 
-  it should "add new RSS in user's feed" in {
-    val json = write[String](rss)
-    postJson("/api/v1/urls", json, headers = Map("Cookie" -> s"sid=$sid"))
-    response.status should equal (HttpResponseStatus.OK)
+  it should "render all news from user's subscription" in {
+    get("/api/v1/news", headers = Map("Cookie" -> s"sid=$sid"))
+    val result = parseJson[Seq[RssNews]](response.body)
+    result.size should be > 0
   }
 
-  it should "show user's RSS subscriptions list" in {
-    get("/api/v1/urls", headers = Map("Cookie" -> s"sid=$sid"))
-    val result = parseJson[Seq[String]](response.body)
-    response.status should equal (HttpResponseStatus.OK)
-    result should have size 1
-    result.head should equal (rss)
-  }
-
-  it should "delete RSS from user's subscriptions list" in {
-    val updatedUser = helper.getUser(randomRegLogin, randomRegPwd)
-    delete(s"/api/v1/urls/${updatedUser.feed.head.toString}", headers = Map("Cookie" -> s"sid=$sid"))
-    response.status should equal (HttpResponseStatus.OK)
+  it should "render specific news item" in {
+    val item = helper.getNews(user).head
+    get(s"/api/v1/news/${item._id.toString}", headers = Map("Cookie" -> s"sid=$sid"))
+    val result = parseJson[RssNews](response.body)
+    result.title should equal (item.title)
+    result.link should equal (item.link)
+    result.description should equal (item.description)
   }
 
   it should "response with 404 not found" in {
     val randomObjectId = new ObjectId().toString
-    delete(s"/api/v1/urls/$randomObjectId", headers = Map("Cookie" -> s"sid=$sid"))
+    get(s"/api/v1/news/$randomObjectId", headers = Map("Cookie" -> s"sid=$sid"))
     response.status should equal (HttpResponseStatus.NOT_FOUND)
+  }
+
+  it should "response with 400 bad request" in {
+    get("/api/v1/news/randomtext", headers = Map("Cookie" -> s"sid=$sid"))
+    response.status should equal (HttpResponseStatus.BAD_REQUEST)
   }
 
   def parseJson[T](jsonString: String)(implicit m: Manifest[T]): T = {
@@ -84,12 +84,4 @@ class RssControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Match
     }
   }
 
-  def postJson(path: String, json: String = "", headers: Map[String, String] = Map()) = {
-    val headersWithContentType = headers ++ Map("Content-Type" -> "application/json")
-    post(
-      path = path,
-      body = json,
-      headers = headersWithContentType
-    )
-  }
 }

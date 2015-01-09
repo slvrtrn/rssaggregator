@@ -1,7 +1,7 @@
 package com.github.slvrthrn.tests.service
 
 import com.github.slvrthrn.helpers.TestHelper
-import com.github.slvrthrn.models.entities.RssUrl
+import com.github.slvrthrn.models.entities.{User, RssUrl}
 import com.mongodb.casbah.Imports._
 import org.scalatest._
 
@@ -20,15 +20,15 @@ class RssTest extends FlatSpec with Matchers with BeforeAndAfterAll {
     helper = new TestHelper
     randomRegLogin = helper.randomRegLogin
     randomPwd = helper.randomRegPwd
-    rssUrl = helper.getRssUrl
+    rssUrl = helper.getRssUrlStrFromConfig()
     helper.registerUser(randomRegLogin, randomPwd)
   }
 
   it should "insert new RSS URL successfully and then delete it with ObjectId" in {
     val user = helper.getUser(randomRegLogin, randomPwd)
-    val url = helper.insertRssUrl(rssUrl, user)
-    url.isInstanceOf[RssUrl] should be (true)
-    val updatedUser = helper.getUser(randomRegLogin, randomPwd)
+    val updatedUser = helper.insertRssUrl(rssUrl, user)
+    updatedUser.isInstanceOf[User] should be (true)
+    val url = helper.getRssUrl(rssUrl)
     val result = helper.deleteRssUrlFromUser(url, updatedUser)
     result should be (true)
   }
@@ -36,12 +36,12 @@ class RssTest extends FlatSpec with Matchers with BeforeAndAfterAll {
   it should "insert new RSS URL successfully again" in {
     val user = helper.getUser(randomRegLogin, randomPwd)
     val result = helper.insertRssUrl(rssUrl, user)
-    result.isInstanceOf[RssUrl] should be (true)
+    result.isInstanceOf[User] should be (true)
   }
 
   it should "download and parse news into the sequence" in {
     val user = helper.getUser(randomRegLogin, randomPwd)
-    val result = helper.loadNews(user)
+    val result = helper.getNews(user)
     result.size should be > 0
   }
 

@@ -57,14 +57,14 @@ class TestHelper extends InjectHelper {
     Await.result(futureSession, awaitTimeout).get
   }
 
-  def insertRssUrl(rssUrl: String, user: User): RssUrl = {
+  def insertRssUrl(rssUrl: String, user: User): User = {
     val url = new URL(rssUrl: String)
     val futureAdd = rssService.addRssUrl(url, user).asScala
-    Await.result(futureAdd, awaitTimeout).get
+    Await.result(futureAdd, awaitTimeout)
   }
 
   def deleteRssUrlFromUser(url: RssUrl, user: User): Boolean = {
-    val futureRemove = rssService.removeRssUrl(url._id.toString, user).asScala
+    val futureRemove = rssService.removeRssUrl(url._id, user).asScala
     Await.result(futureRemove, awaitTimeout)
   }
 
@@ -72,7 +72,7 @@ class TestHelper extends InjectHelper {
     urlRepo.removeBy("url" $eq url)
   }
 
-  def loadNews(user: User): Seq[RssNews] = {
+  def getNews(user: User): Seq[RssNews] = {
     val futureNews = rssService.getNews(user).asScala
     Await.result(futureNews, awaitTimeout)
   }
@@ -87,7 +87,12 @@ class TestHelper extends InjectHelper {
 
   def randomRegPwd: String = UUID.randomUUID.toString
 
-  def getRssUrl: String = config.getString("test.default.rssUrl")
+  def getRssUrlStrFromConfig(i: Int = 1): String = config.getString(s"test.default.rssUrl$i")
+
+  def getRssUrl(urlStr: String): RssUrl = {
+    val futureRssUrl = urlRepo.findByUrl(urlStr).asScala
+    Await.result(futureRssUrl, awaitTimeout).get
+  }
 
   def cookie(name: String, response: MockResponse): Option[Cookie] = {
     import scala.collection.JavaConverters._

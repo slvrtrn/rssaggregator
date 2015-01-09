@@ -16,7 +16,8 @@ libraryDependencies ++= Seq(
   "de.neuland-bfi" % "jade4j" % "0.4.2",
   "com.wix" %% "accord-core" % "0.4",
   "org.scalatest" % "scalatest_2.10" % "2.2.1" % "test",
-  "org.json4s" %% "json4s-mongo" % "3.2.11"
+  "org.json4s" %% "json4s-mongo" % "3.2.11",
+  "org.json4s" %% "json4s-jackson" % "3.2.11"
   )
 
 scalaVersion := "2.10.4"

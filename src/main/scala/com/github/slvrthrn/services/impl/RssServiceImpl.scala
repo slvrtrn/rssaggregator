@@ -7,6 +7,7 @@ import com.github.slvrthrn.repositories.{UserRepo, RssUrlRepo, RssNewsRepo}
 import com.github.slvrthrn.services.RssService
 import com.github.slvrthrn.utils.InjectHelper
 import com.twitter.util.Future
+import org.bson.types
 import org.joda.time.{Seconds, DateTime}
 import scaldi.Injector
 import com.mongodb.casbah.Imports._
@@ -28,29 +29,30 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
 
   private implicit val executionContext = inject[ExecutionContext]
 
-  def addRssUrl(url: URL, user: User): Future[Option[RssUrl]] = {
+  def addRssUrl(url: URL, user: User): Future[User] = {
     val urlStr  = url.toString
     val checkDb = checkRssUrlExitestence(urlStr)
     checkDb map {
       case Some(rssUrl: RssUrl) =>
         val checkFeed = user.feed contains rssUrl._id
         checkFeed match {
-          case true => None
+          case true => user
           case false =>
-            userRepo.save(user.copy(feed = user.feed + rssUrl._id))
-            Some(rssUrl)
+            val updatedUser = user.copy(feed = user.feed + rssUrl._id)
+            userRepo.save(updatedUser)
+            updatedUser
         }
       case _ =>
         val rssUrl = RssUrl(urlStr)
-        userRepo.save(user.copy(feed = user.feed + rssUrl._id))
+        val updatedUser = user.copy(feed = user.feed + rssUrl._id)
+        userRepo.save(updatedUser)
         urlRepo.save(rssUrl)
-        Some(rssUrl)
+        updatedUser
     }
   }
 
-  def removeRssUrl(id: String, user: User): Future[Boolean] = {
-    val objectId = new ObjectId(id)
-    val newFeed = user.feed.filterNot(_ == objectId)
+  def removeRssUrl(id: ObjectId, user: User): Future[Boolean] = {
+    val newFeed = user.feed.filterNot(_ == id)
     newFeed equals user.feed match {
       case true => Future value false
       case false =>
@@ -59,7 +61,7 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
     }
   }
 
-  def getNewsById(id: String): Future[Option[RssNews]] = newsRepo.findById(new ObjectId(id))
+  def getNewsById(id: ObjectId): Future[Option[RssNews]] = newsRepo.findById(id)
 
   def getNews(user: User): Future[Seq[RssNews]] = {
     val now = new DateTime
