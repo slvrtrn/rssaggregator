@@ -2,7 +2,7 @@ package com.github.slvrthrn.controllers
 
 import java.nio.charset.Charset
 
-import com.github.slvrthrn.filters.AuthRequest
+import com.github.slvrthrn.filters.UserRequest
 import com.github.slvrthrn.models.entities.{RssNews, User}
 import com.github.slvrthrn.repositories.UserRepo
 import com.twitter.finagle.http.Cookie
@@ -60,7 +60,7 @@ trait Controller extends FController with InjectHelper {
   protected def withUserContext(f: User => Future[ResponseBuilder])(implicit request: FinatraRequest)
   : Future[ResponseBuilder] = {
     request.request match {
-      case req: AuthRequest =>
+      case req: UserRequest =>
         userRepo.findById(req.session.uid) flatMap {
           case Some(u: User) => f(u)
           case _ =>

@@ -6,11 +6,11 @@ import scala.collection.JavaConversions._
 /**
  * Created by slvr on 12/12/14.
  */
-class RegView extends View {
+class AuthView extends View {
 
   def renderHtml: String = {
-    val template = Jade4J.getTemplate("./tpl/registration.jade")
-    Jade4J.render(template, model)
+    val template = getTemplate("auth")
+    renderTemplate(template)
   }
 
 }

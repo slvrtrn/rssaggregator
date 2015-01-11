@@ -17,50 +17,51 @@ import com.twitter.finatra.{Request => FinatraRequest}
  * Created by slvr on 12/12/14.
  */
 class IndexFilter(implicit val inj: Injector)
-  extends SimpleFilter[FinagleRequest, FinagleResponse] with App with InjectHelper  {
+  extends SimpleFilter[FinagleRequest, FinagleResponse] with App with InjectHelper {
 
   def apply(request: FinagleRequest, service: Service[FinagleRequest, FinagleResponse]): Future[FinagleResponse] = {
+    request.uri match {
+      case "/reg" | "/login" | "/auth" => processAuthRequest(request, service)
+      case uri: String if uri.contains("/api/v1/") | uri == "/" => processUserRequest(request, service)
+      case _ => service(request)
+    }
+  }
 
+  private def processAuthRequest(request: FinagleRequest, service: Service[FinagleRequest, FinagleResponse])
+  : Future[FinagleResponse] = {
     val sessionService = inject[SessionService]
-
     request.cookies.get("sid") match {
       case Some(c: Cookie) =>
         sessionService.getSession(c.value) flatMap {
           case Some(s: Session) =>
-            if(isRegOrLogin(request)) {
-              Future value new ResponseBuilder()
-                .plain("Already logged in, redirecting to index").status(HttpResponseStatus.FOUND.getCode)
-                .header("Location", "/").build
-            } else {
-              service(AuthRequest(request, s))
-            }
+            Future value new ResponseBuilder()
+              .plain("Already logged in, redirecting to index").status(HttpResponseStatus.FOUND.getCode)
+              .header("Location", "/").build
+          case _ => service(request)
+        }
+      case _ => service(request)
+    }
+  }
+
+  private def processUserRequest(request: FinagleRequest, service: Service[FinagleRequest, FinagleResponse]) = {
+    val sessionService = inject[SessionService]
+    request.cookies.get("sid") match {
+      case Some(c: Cookie) =>
+        sessionService.getSession(c.value) flatMap {
+          case Some(s: Session) => service(UserRequest(request, s))
           case _ =>
-            if (!isRegOrLogin(request)) {
-              val expired = new Cookie("sid", "")
-              expired.maxAge = Duration(-42, TimeUnit.DAYS)
-              Future value new ResponseBuilder()
-                .plain("Redirecting to login").status(HttpResponseStatus.FOUND.getCode)
-                .header("Location", "/login").cookie(expired).build
-            } else {
-              service(request)
-            }
+            val expired = new Cookie("sid", "")
+            expired.maxAge = Duration(-42, TimeUnit.DAYS)
+            Future value new ResponseBuilder()
+              .plain("Redirecting to auth").status(HttpResponseStatus.FOUND.getCode)
+              .header("Location", "/auth").cookie(expired).build
         }
       case _ =>
-        if(!isRegOrLogin(request)) {
-          Future value new ResponseBuilder()
-            .plain("Redirecting to login").status(HttpResponseStatus.FOUND.getCode)
-            .header("Location", "/login").build
-        } else {
-          service(request)
-        }
+        Future value new ResponseBuilder()
+          .plain("Redirecting to auth").status(HttpResponseStatus.FOUND.getCode)
+          .header("Location", "/auth").build
     }
-
   }
-
-  private def isRegOrLogin(request: FinagleRequest): Boolean = {
-    request.uri.contains("/login") || request.uri.contains("/reg")
-  }
-
 }
 
-case class AuthRequest(override val request: FinagleRequest, session: Session) extends FinatraRequest(request)
+case class UserRequest(override val request: FinagleRequest, session: Session) extends FinatraRequest(request)

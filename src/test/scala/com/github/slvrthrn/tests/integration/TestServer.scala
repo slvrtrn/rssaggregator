@@ -1,6 +1,6 @@
 package com.github.slvrthrn.tests.integration
 
-import com.github.slvrthrn.filters.{IndexFilter, AuthRequest}
+import com.github.slvrthrn.filters.{IndexFilter, UserRequest}
 import com.github.slvrthrn.models.entities.{User, Session}
 import com.github.slvrthrn.services.SessionService
 import com.github.slvrthrn.utils.InjectHelper
@@ -31,7 +31,7 @@ class TestServer(implicit val inj: Injector) extends FinatraServer with InjectHe
     val sid = Await.result(futureSid, awaitTimeout).get
     addFilter(new SimpleFilter[Req, Res]{
       override def apply(request: Req, service: Service[Req, Res]): Future[Res] = {
-        service.apply(new AuthRequest(request, Session(id = sid, uid = user._id)))
+        service.apply(new UserRequest(request, Session(id = sid, uid = user._id)))
       }
     })
   }

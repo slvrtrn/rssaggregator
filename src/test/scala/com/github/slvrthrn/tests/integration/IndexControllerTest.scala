@@ -48,7 +48,7 @@ class IndexControllerTest extends IntegrationTest {
   it should "not show index page for non-authenticated user" in {
     get("/")
     response.status should equal (HttpResponseStatus.FOUND)
-    response.body should include ("Redirecting to login")
+    response.body should include ("Redirecting to auth")
   }
 
 }

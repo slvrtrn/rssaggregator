@@ -37,38 +37,24 @@ class AuthControllerTest extends IntegrationTest {
     register(new AuthController)
   }
 
-  it should "show login page" in {
-    get("/login")
-    response.body should include ("Login")
+  it should "show login and registration page" in {
+    get("/auth")
     response.body should include ("<input name=\"login\" type=\"text\">")
     response.body should include ("<input name=\"password\" type=\"password\">")
   }
 
-  it should "show registration page" in {
-    get("/reg")
-    response.body should include ("Registration")
-    response.body should include ("<input name=\"login\" type=\"text\">")
-    response.body should include ("<input name=\"password\" type=\"password\">")
-  }
-
-  it should "register new user successfully via POST JSON request and create new session" in {
-    val regForm = RegForm(login = randomRegLogin, password = randomRegPwd)
-    val json = write(regForm)
-    postJson("/reg", json)
-    val result = parseJson[String](response.body)
-    response.status should equal (HttpResponseStatus.OK)
-    result should equal ("User creation: success")
+  it should "register new user successfully via POST JSON request and redirect to index" in {
+    post("/reg", Map("login" -> randomRegLogin, "password" -> randomRegPwd))
+    response.status should equal (HttpResponseStatus.FOUND)
+    response.body should equal ("User creation: success")
     val sid = helper.cookieValue("sid", response).get
     sid should have length 36
   }
 
-  it should "login newly registered user via POST JSON request and create new session" in {
-    val loginForm = LoginForm(login = randomRegLogin, password = randomRegPwd)
-    val json = write(loginForm)
-    postJson("/login", json)
-    val result = parseJson[String](response.body)
-    response.status should equal (HttpResponseStatus.OK)
-    result should equal ("Login is OK and session is created")
+  it should "login newly registered user via POST JSON request and redirect to index" in {
+    post("/login", Map("login" -> randomRegLogin, "password" -> randomRegPwd))
+    response.status should equal (HttpResponseStatus.FOUND)
+    response.body should equal ("Login is OK and session is created")
     val sid = helper.cookieValue("sid", response).get
     sid should have length 36
   }

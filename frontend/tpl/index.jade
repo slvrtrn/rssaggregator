@@ -1,0 +1,14 @@
+!!! 5
+html
+  head
+    title RssAggregator index module
+    include includes/head.jade
+    script(src='/javascripts/client.js')
+  body
+    div(ng-app="news")
+      div(ng-controller="NewsCtrl")
+        h1 Hello world, #{user}
+        form(name="rssForm", action="/addrss", method="post")
+          input(type="text", name="url")
+          input(type="submit")
+        h1 Current RSS

@@ -10,11 +10,13 @@ import com.github.slvrthrn.filters.IndexFilter
  */
 object App extends FinatraServer {
 
+  System.setProperty("com.twitter.finatra.config.docRoot", ".")
+  System.setProperty("com.twitter.finatra.config.assetPath", "/public")
+
   private implicit val inj = BindingsProvider.getBindings
 
-  addFilter(new IndexFilter)
-
-  register(new IndexController)
   register(new AuthController)
+  addFilter(new IndexFilter)
+  register(new IndexController)
 
 }

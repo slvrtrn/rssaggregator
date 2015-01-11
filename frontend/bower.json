@@ -1,0 +1,26 @@
+{
+  "name": "frontend",
+  "version": "0.1",
+  "authors": [
+    "slvrthrn"
+  ],
+  "description": "rssaggregator js frontend",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.1",
+    "jquery": "~2.1.1",
+    "angular": "~1.3.2",
+    "angular-ui": "~0.4.0",
+    "moment": "~2.8.3",
+    "angular-bootstrap": "~0.12.0",
+    "restangular": "~1.4.0",
+    "angular-ui-router": "~0.2.13"
+  }
+}
