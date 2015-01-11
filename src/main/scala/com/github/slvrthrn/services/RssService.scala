@@ -20,5 +20,7 @@ trait RssService {
   def getNewsById(id: ObjectId): Future[Option[RssNews]]
 
   def findRssUrlByUser(user: User): Future[Seq[RssUrl]]
+  
+  def getNewsWithRange(user: User, startFrom: ObjectId, limit: Int): Future[Seq[RssNews]]
 
 }

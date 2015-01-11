@@ -60,9 +60,10 @@ trait MongoDaoRepository[O <: MongoEntity] { self: InjectHelper =>
    * @param filter
    * @return
    */
-  def find(filter: MongoDBObject = MongoDBObject()): Future[Seq[O]] = Future {
+  def find(filter: MongoDBObject = MongoDBObject(), limit: Int = 0): Future[Seq[O]] = Future {
     val result = dao.find(filter)
       .sort(MongoDBObject("_id" -> -1))
+      .limit(limit)
       .toList
     result
   }

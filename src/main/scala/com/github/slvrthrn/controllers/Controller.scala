@@ -56,9 +56,8 @@ trait Controller extends FController with InjectHelper {
     }
   }
 
-  protected def renderBadRequest(userMessage: String = "Malformed URL", internalMessage: String = "Invalid id specified")
+  protected def renderBadRequest(errors: Seq[ErrorPayload] = Seq(ErrorPayload("Malformed URL", "Invalid ID specified")))
   : Future[ResponseBuilder] = {
-    val errors = Seq(ErrorPayload(userMessage, internalMessage))
     renderJsonError(errors, 400)
   }
 

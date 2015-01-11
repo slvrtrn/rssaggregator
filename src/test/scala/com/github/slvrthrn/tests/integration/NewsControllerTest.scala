@@ -65,6 +65,14 @@ class NewsControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matc
     result.description should equal (item.description)
   }
 
+  it should "use range-based pagination correctly" in {
+    val news = helper.getNews(user)
+    val objectId = news(4)._id
+    get(s"/api/v1/news/start/${objectId.toString}")
+    val result = parseJson[Seq[RssNews]](response.body)
+    result.size should be > 0
+  }
+
   it should "response with 404 not found" in {
     val randomObjectId = new ObjectId().toString
     get(s"/api/v1/news/$randomObjectId")

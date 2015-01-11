@@ -79,6 +79,10 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
     } yield news
   }
 
+  def getNewsWithRange(user: User, startFrom: ObjectId, limit: Int): Future[Seq[RssNews]] = {
+    newsRepo.findAllWithRange("parent" $in user.feed, startFrom, limit)
+  }
+
   private def loadNews(rssUrl: RssUrl): Future[Seq[RssNews]] = {
     Future {
       Try(XML.load(rssUrl.url))
@@ -86,15 +90,19 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
       case Success(xml) =>
         val freshNews = (xml \\ "item").map(buildNews(_, rssUrl._id)).toSeq
         saveNewsSeq(freshNews, rssUrl)
-      case Failure(e) => newsRepo.findByParent(rssUrl._id)
+      case Failure(e) => Future value Seq[RssNews]()
     }
   }
 
   private def saveNewsSeq(freshNews: Seq[RssNews], rssUrl: RssUrl): Future[Seq[RssNews]] = {
     for {
-      _ <- newsRepo.removeByParent(rssUrl._id)
+      //_ <- newsRepo.removeByParent(rssUrl._id)
+      oldNews <- newsRepo.findByParent(rssUrl._id, limit = freshNews.size)
       _ <- urlRepo.save(rssUrl.copy(lastUpdate = new DateTime))
-      news <- newsRepo.saveTraversable(freshNews)
+      news <- {
+        val diff = freshNews filterNot(item => oldNews.exists(_.title == item.title))
+        newsRepo.saveTraversable(diff)
+      }
     } yield news.toSeq // ???
   }
 

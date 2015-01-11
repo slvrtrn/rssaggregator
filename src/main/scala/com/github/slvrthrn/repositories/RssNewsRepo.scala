@@ -16,7 +16,7 @@ trait RssNewsRepo extends MongoDaoRepository[RssNews] { self: InjectHelper =>
 
   protected val dao = new SalatDAO[RssNews, ObjectId](collection = collection) {}
 
-  def findByParent(parent: ObjectId): Future[Seq[RssNews]]
+  def findByParent(parent: ObjectId, limit: Int = 0): Future[Seq[RssNews]]
 
   def removeByParent(parent: ObjectId): Future[Boolean]
 

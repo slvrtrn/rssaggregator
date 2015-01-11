@@ -48,7 +48,7 @@ class RssController(implicit val inj: Injector) extends Controller {
             "Invalid URL format",
             "Cannot parse URL JSON"
           ))
-          renderJsonError(errors, 400)
+          renderBadRequest(errors)
       }
     }
   }

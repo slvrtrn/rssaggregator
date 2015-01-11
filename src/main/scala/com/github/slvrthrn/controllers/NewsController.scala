@@ -2,6 +2,7 @@ package com.github.slvrthrn.controllers
 
 import com.github.slvrthrn.models.entities.RssNews
 import com.github.slvrthrn.services.RssService
+import com.typesafe.config.Config
 import org.bson.types.ObjectId
 import scaldi.Injector
 
@@ -13,13 +14,14 @@ import scala.util.{Failure, Success, Try}
 class NewsController(implicit val inj: Injector) extends Controller {
 
   val rssService = inject[RssService]
+  val config = inject[Config]
+
+  val onPageLimit = config.getInt("app.default.news.onPageLimit")
 
   get("/api/v1/news") { implicit request =>
     withUserContext { user =>
       val result = rssService.getNews(user)
-      result flatMap {
-        case news: Seq[RssNews] => renderJsonArray(news)
-      }
+      result flatMap renderJsonArray[RssNews]
     }
   }
 
@@ -41,6 +43,23 @@ class NewsController(implicit val inj: Injector) extends Controller {
                   ))
                   renderJsonError(errors, 404)
               }
+            case Failure(e) => renderBadRequest()
+          }
+        case _ => renderBadRequest()
+      }
+    }
+  }
+
+  get("/api/v1/news/start/:id") { implicit request =>
+    withUserContext { user =>
+      val param = request.routeParams.get("id")
+      param match {
+        case Some(id: String) =>
+          val res = Try(new ObjectId(id))
+          res match {
+            case Success(objectId: ObjectId) =>
+              val result = rssService.getNewsWithRange(user, objectId, onPageLimit)
+              result flatMap renderJsonArray[RssNews]
             case Failure(e) => renderBadRequest()
           }
         case _ => renderBadRequest()
