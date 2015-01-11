@@ -5,7 +5,7 @@ import com.github.slvrthrn.utils.InjectHelper
 import com.novus.salat.dao.SalatDAO
 import com.twitter.util.Future
 import org.bson.types.ObjectId
-import com.novus.salat.global._
+import com.novus.salat.global.ctx
 
 /**
  * Created by slvr on 12/17/14.

@@ -7,5 +7,5 @@ import scaldi.Module
  * Created by slvr on 12/11/14.
  */
 class Cache extends Module {
-  bind [SessionCache] to new SessionCache
+  bind[SessionCache] to new SessionCache
 }

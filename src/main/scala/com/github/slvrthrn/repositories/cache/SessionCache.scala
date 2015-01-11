@@ -6,6 +6,7 @@ import akka.util.Timeout
 import com.github.slvrthrn.models.entities.Session
 import com.github.slvrthrn.utils.InjectHelper
 import com.redis.RedisClient
+import com.typesafe.config.Config
 import scaldi.Injector
 import com.novus.salat._
 import com.novus.salat.global._
@@ -18,9 +19,9 @@ import scala.concurrent.duration.Duration
 class SessionCache(implicit val inj: Injector) extends InjectHelper {
 
   private val client: RedisClient = inject[RedisClient]
-
-  private implicit val timeout = Timeout(Duration(5, TimeUnit.SECONDS))
-
+  private val config = inject[Config]
+  private val defaultRedisTimeout = config.getInt("redis.default.timeout")
+  private implicit val timeout = Timeout(Duration(defaultRedisTimeout, TimeUnit.SECONDS))
   private implicit val executionContext = inject[ExecutionContext]
 
   def set(session: Session): Future[Boolean] = {

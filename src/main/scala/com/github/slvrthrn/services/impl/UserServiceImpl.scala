@@ -33,8 +33,11 @@ class UserServiceImpl(implicit val inj: Injector) extends UserService with Injec
     for {
       exist <- checkUserExistence(form.login)
       regResult <- {
-        if(!exist) userRepo.save(User(form.login, form.password.bcrypt)).map(Some(_))
-        else Future value None
+        if(!exist) {
+          userRepo.save(User(form.login, form.password.bcrypt)).map(Some(_))
+        } else {
+          Future value None
+        }
       }
     } yield regResult
   }

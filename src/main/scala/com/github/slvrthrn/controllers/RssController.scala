@@ -41,7 +41,7 @@ class RssController(implicit val inj: Injector) extends Controller {
                 "Specified URL is already in your RSS subscriptions list",
                 "Duplicate RSS URL"
               ))
-              renderJsonError(errors, 409)
+              renderConflict(errors)
           }
         case _ =>
           val errors = Seq(ErrorPayload(
@@ -64,7 +64,7 @@ class RssController(implicit val inj: Injector) extends Controller {
               "Specified URL wasn't found in your subscriptions list",
               "RSS URL wasn't found"
             ))
-            renderJsonError(errors, 404)
+            renderNotFound(errors)
         }
       }
     }

@@ -3,10 +3,7 @@ package com.github.slvrthrn.controllers
 import com.github.slvrthrn.models.entities.RssNews
 import com.github.slvrthrn.services.RssService
 import com.typesafe.config.Config
-import org.bson.types.ObjectId
 import scaldi.Injector
-
-import scala.util.{Failure, Success, Try}
 
 /**
  * Created by slvr on 12/25/14.
@@ -36,7 +33,7 @@ class NewsController(implicit val inj: Injector) extends Controller {
               "There are no news with specified ID",
               "News item was not found"
             ))
-            renderJsonError(errors, 404)
+            renderNotFound(errors)
         }
       }
     }

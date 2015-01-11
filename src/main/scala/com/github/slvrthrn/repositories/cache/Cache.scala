@@ -6,6 +6,7 @@ import akka.util.Timeout
 import com.github.slvrthrn.utils.InjectHelper
 import com.redis.RedisClient
 import com.twitter.util.Future
+import com.typesafe.config.Config
 import org.json4s._
 import org.json4s.mongo.ObjectIdSerializer
 import org.json4s.native.Serialization.{read, write}
@@ -18,17 +19,19 @@ import com.github.slvrthrn.utils.Twitter._
  * Created by slvr on 12/16/14.
  */
 trait Cache { self: InjectHelper =>
-  def cacheFor[A <: AnyRef](namespace: String)(implicit ec: ExecutionContext, m: Manifest[A])
-  = new CacheBuilder[A](namespace, inject[RedisClient])
+  def cacheFor[A <: AnyRef](namespace: String)(implicit ec: ExecutionContext, m: Manifest[A]): CacheBuilder[A] = {
+    val config = inject[Config]
+    val seconds = config.getInt("redis.default.timeout")
+    val timeout = Timeout(Duration(seconds, TimeUnit.SECONDS))
+    new CacheBuilder[A](namespace, inject[RedisClient], timeout)
+  }
 }
 
-case class CacheBuilder[A <: AnyRef](namespace: String, redisClient: RedisClient)
+case class CacheBuilder[A <: AnyRef](namespace: String, redisClient: RedisClient, redisTimeout: Timeout)
                                     (implicit ec: ExecutionContext, m: Manifest[A]) {
 
   private val client = redisClient
-
-  private implicit val timeout = Timeout(Duration(5, TimeUnit.SECONDS))
-
+  private implicit val timeout = redisTimeout
   private implicit val formats: Formats = DefaultFormats + new ObjectIdSerializer
 
   def getOrElseUpdate(key: Any)(orElse: => Future[A]): Future[A] = {

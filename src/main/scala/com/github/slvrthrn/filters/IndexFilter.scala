@@ -9,6 +9,7 @@ import com.twitter.finagle.http.{Request => FinagleRequest, Response => FinagleR
 import com.twitter.app.App
 import com.twitter.finatra.ResponseBuilder
 import com.twitter.util.{Duration, Future}
+import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import scaldi.Injector
 import com.twitter.finatra.{Request => FinatraRequest}
 
@@ -18,7 +19,7 @@ import com.twitter.finatra.{Request => FinatraRequest}
 class IndexFilter(implicit val inj: Injector)
   extends SimpleFilter[FinagleRequest, FinagleResponse] with App with InjectHelper  {
 
-  def apply(request: FinagleRequest, service: Service[FinagleRequest, FinagleResponse]) = {
+  def apply(request: FinagleRequest, service: Service[FinagleRequest, FinagleResponse]): Future[FinagleResponse] = {
 
     val sessionService = inject[SessionService]
 
@@ -26,23 +27,32 @@ class IndexFilter(implicit val inj: Injector)
       case Some(c: Cookie) =>
         sessionService.getSession(c.value) flatMap {
           case Some(s: Session) =>
-            if (isRegOrLogin(request)) {
+            if(isRegOrLogin(request)) {
               Future value new ResponseBuilder()
-                .plain("Already logged in, redirecting to index").status(302).header("Location", "/").build
-            } else service(AuthRequest(request, s))
+                .plain("Already logged in, redirecting to index").status(HttpResponseStatus.FOUND.getCode)
+                .header("Location", "/").build
+            } else {
+              service(AuthRequest(request, s))
+            }
           case _ =>
             if (!isRegOrLogin(request)) {
               val expired = new Cookie("sid", "")
               expired.maxAge = Duration(-42, TimeUnit.DAYS)
               Future value new ResponseBuilder()
-                .plain("Redirecting to login").status(302).header("Location", "/login").cookie(expired).build
-            } else service(request)
+                .plain("Redirecting to login").status(HttpResponseStatus.FOUND.getCode)
+                .header("Location", "/login").cookie(expired).build
+            } else {
+              service(request)
+            }
         }
       case _ =>
-        if (!isRegOrLogin(request)) {
+        if(!isRegOrLogin(request)) {
           Future value new ResponseBuilder()
-            .plain("Redirecting to login").status(302).header("Location", "/login").build
-        } else service(request)
+            .plain("Redirecting to login").status(HttpResponseStatus.FOUND.getCode)
+            .header("Location", "/login").build
+        } else {
+          service(request)
+        }
     }
 
   }

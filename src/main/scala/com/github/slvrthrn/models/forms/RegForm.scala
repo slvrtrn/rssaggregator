@@ -9,7 +9,7 @@ case class RegForm(login: String, password: String)
 
 object RegForm {
 
-  implicit val regFormValidator = validator[ RegForm ] { f =>
+  implicit val regFormValidator = validator[RegForm] { f =>
     f.login is notEmpty
     f.password is notEmpty
   }

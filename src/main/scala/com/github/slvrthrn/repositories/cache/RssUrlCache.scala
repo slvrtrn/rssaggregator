@@ -12,9 +12,7 @@ import scaldi.Injector
 class RssUrlCache(implicit inj: Injector) extends RssUrlRepoImpl with Cache {
 
   val rssUrlSeqCache = cacheFor[Seq[RssUrl]]("rssUrlSeqByUserId")
-
   val rssUrlOptionUrlCache = cacheFor[Option[RssUrl]]("rssUrlOptionByUrl")
-  
   val rssUrlOptionIdCache = cacheFor[Option[RssUrl]]("rssUrlOptionById")
 
   override def findByUrl(url: String): Future[Option[RssUrl]] = {

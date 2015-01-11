@@ -10,8 +10,8 @@ import com.twitter.finatra.{Controller => FController, ResponseBuilder, Request 
 import com.twitter.util.Future
 import com.github.slvrthrn.utils.InjectHelper
 import org.bson.types.ObjectId
-import org.jboss.netty.handler.codec.http.DefaultCookie
-import org.json4s._
+import org.jboss.netty.handler.codec.http.{HttpResponseStatus, DefaultCookie}
+import org.json4s.{Formats, DefaultFormats}
 import org.json4s.jackson.Serialization.{read, write}
 
 import scala.concurrent.ExecutionContext
@@ -23,10 +23,10 @@ import scala.util.{Failure, Try, Success}
 trait Controller extends FController with InjectHelper {
 
   protected val userRepo: UserRepo = inject[UserRepo]
-
   protected implicit val executionContext = inject[ExecutionContext]
-
   protected implicit val formats: Formats = DefaultFormats
+  protected val defaultCookiePath = "/"
+  protected val defaultCookieMaxAge = 86400
 
   protected def renderJson[T<:AnyRef](data: T)(implicit m: Manifest[T]): Future[ResponseBuilder] = {
     val json = write(data)
@@ -57,9 +57,24 @@ trait Controller extends FController with InjectHelper {
     }
   }
 
-  protected def renderBadRequest(errors: Seq[ErrorPayload] = Seq(ErrorPayload("Malformed URL", "Invalid ID specified")))
-  : Future[ResponseBuilder] = {
-    renderJsonError(errors, 400)
+  protected def renderNotFound(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
+    renderJsonError(errors, HttpResponseStatus.NOT_FOUND.getCode)
+  }
+
+  protected def renderBadRequest(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
+    renderJsonError(errors, HttpResponseStatus.BAD_REQUEST.getCode)
+  }
+
+  protected def renderForbidden(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
+    renderJsonError(errors, HttpResponseStatus.FORBIDDEN.getCode)
+  }
+
+  protected def renderConflict(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
+    renderJsonError(errors, HttpResponseStatus.CONFLICT.getCode)
+  }
+
+  protected def renderInternal(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
+    renderJsonError(errors, HttpResponseStatus.INTERNAL_SERVER_ERROR.getCode)
   }
 
   protected def withUserContext(f: User => Future[ResponseBuilder])(implicit request: FinatraRequest)
@@ -71,18 +86,18 @@ trait Controller extends FController with InjectHelper {
           case _ =>
             val errors = Seq(
               ErrorPayload(
-                userMessage = "Invalid session cookie. You will be redirected",
-                internalMessage = "Cannot find user with UID stored in session")
+                "Invalid session cookie. You will be redirected",
+                "Cannot find user with UID stored in session")
             )
-            renderJsonError(errors, 403)
+            renderForbidden(errors)
         }
       case _ =>
         val errors = Seq(
           ErrorPayload(
-            userMessage = "Invalid session cookie. You will be redirected",
-            internalMessage = "There is no session in request")
+            "Invalid session cookie. You will be redirected",
+            "There is no session in request")
         )
-        renderJsonError(errors, 403)
+        renderForbidden(errors)
     }
   }
 
@@ -94,13 +109,25 @@ trait Controller extends FController with InjectHelper {
         val res = Try(new ObjectId(id))
         res match {
           case Success(objectId: ObjectId) => f(objectId)
-          case Failure(e) => renderBadRequest()
+          case Failure(e) =>
+            val errors = Seq(ErrorPayload(
+              "Invalid ID specified in request URL",
+              "Couldn't parse ObjectId from URL"))
+            renderBadRequest(errors)
         }
-      case _ => renderBadRequest()
+      case _ =>
+        val errors = Seq(ErrorPayload(
+          "ID was not specified in request URL",
+          "Couldn't get ID string from URL"))
+        renderBadRequest(errors)
     }
   }
 
-  protected def createCookie(key: String, value: String, path: String = "/", maxAge: Int = 86400) = {
+  protected def createCookie(
+                              key: String,
+                              value: String,
+                              path: String = defaultCookiePath,
+                              maxAge: Int = defaultCookieMaxAge) = {
     val dc = new DefaultCookie(key, value)
     dc.setPath(path)
     dc.setMaxAge(maxAge)

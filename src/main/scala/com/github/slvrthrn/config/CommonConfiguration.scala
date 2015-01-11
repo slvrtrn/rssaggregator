@@ -29,7 +29,7 @@ class CommonConfiguration extends Module {
     mongoClient(dbName)
   }
 
-  def redisClient(urlConfigPath: String, portConfigPath: String) = {
+  def redisClient(urlConfigPath: String, portConfigPath: String): RedisClient = {
     implicit val system = ActorSystem("redis-client")
     val config = inject[Config]
     val url = config.getString(urlConfigPath)
@@ -37,10 +37,10 @@ class CommonConfiguration extends Module {
     RedisClient(url, port)
   }
 
-  bind [MongoClient] to mongoClient("mongodb.default.uri")
-  bind [MongoDB] to mongoDb("mongodb.default.db")
-  bind [Config] to ConfigFactory.load()
-  bind [ExecutionContext] to scala.concurrent.ExecutionContext.Implicits.global
-  bind [RedisClient] to redisClient("redis.default.url", "redis.default.port")
+  bind[MongoClient] to mongoClient("mongodb.default.uri")
+  bind[MongoDB] to mongoDb("mongodb.default.db")
+  bind[Config] to ConfigFactory.load()
+  bind[ExecutionContext] to scala.concurrent.ExecutionContext.Implicits.global
+  bind[RedisClient] to redisClient("redis.default.url", "redis.default.port")
 
 }

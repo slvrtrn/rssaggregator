@@ -8,7 +8,7 @@ import com.github.slvrthrn.services.impl.{RssServiceImpl, SessionServiceImpl, Us
  * Created by slvr on 12/6/14.
  */
 class Services extends Module {
-  bind [UserService] to new UserServiceImpl
-  bind [SessionService] to new SessionServiceImpl
-  bind [RssService] to new RssServiceImpl
+  bind[UserService] to new UserServiceImpl
+  bind[SessionService] to new SessionServiceImpl
+  bind[RssService] to new RssServiceImpl
 }

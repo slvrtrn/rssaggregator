@@ -9,7 +9,7 @@ case class LoginForm(login: String, password: String)
 
 object LoginForm {
 
-  implicit val loginFormValidator = validator[ LoginForm ] { f =>
+  implicit val loginFormValidator = validator[LoginForm] { f =>
     f.login is notEmpty
     f.password is notEmpty
   }
