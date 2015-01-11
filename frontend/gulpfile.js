@@ -27,6 +27,6 @@ gulp.task('styles', function() {
 gulp.task('frontend', ['scripts', 'styles']);
 
 gulp.task('watch', function() {
-    gulp.watch('src/scripts/**/*', ['scripts']);
+    gulp.watch('src/scripts/**', ['scripts']);
     gulp.watch('src/styles/**/*', ['styles']);
 });

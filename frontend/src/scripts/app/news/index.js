@@ -1,1 +1,1 @@
-angular.module('app-news', ['ui.router', 'restangular']);
+angular.module('app-news', ['ui.router', 'restangular', 'ui.bootstrap', 'ui.select']);
