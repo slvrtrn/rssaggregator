@@ -15,7 +15,7 @@ import scaldi.Injector
  * Created by slvr on 1/9/15.
  */
 //@Ignore
-class IndexControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matchers {
+class IndexControllerTest extends IntegrationTest {
 
   override def beforeAll() = {
     helper = new TestHelper
@@ -29,7 +29,6 @@ class IndexControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Mat
     helper.clearCache
   }
 
-  implicit val inj: Injector = BindingsProvider.getBindings
   var helper: TestHelper = _
   var randomRegLogin: String = _
   var randomRegPwd: String = _

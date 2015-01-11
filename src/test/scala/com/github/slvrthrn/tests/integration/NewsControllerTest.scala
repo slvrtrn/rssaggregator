@@ -17,7 +17,7 @@ import scaldi.Injector
  * Created by slvr on 09.01.15.
  */
 //@Ignore
-class NewsControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matchers {
+class NewsControllerTest extends IntegrationTest {
 
   override def beforeAll() = {
     helper = new TestHelper
@@ -35,8 +35,6 @@ class NewsControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matc
     helper.clearCache
   }
 
-  implicit val inj: Injector = BindingsProvider.getBindings
-  implicit val formats = DefaultFormats
   var helper: TestHelper = _
   var randomRegLogin: String = _
   var randomRegPwd: String = _
@@ -73,23 +71,27 @@ class NewsControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matc
     result.size should be > 0
   }
 
-  it should "response with 404 not found" in {
+  it should "response with 404 not found for specific news item" in {
     val randomObjectId = new ObjectId().toString
     get(s"/api/v1/news/$randomObjectId")
     response.status should equal (HttpResponseStatus.NOT_FOUND)
   }
 
-  it should "response with 400 bad request" in {
+  it should "response with 400 bad request for specific news item" in {
     get("/api/v1/news/randomtext")
     response.status should equal (HttpResponseStatus.BAD_REQUEST)
   }
 
-  def parseJson[T](jsonString: String)(implicit m: Manifest[T]): T = {
-    try {
-      read[T](jsonString)
-    } catch {
-      case e: Exception => throw new Exception("can`t parse string [" + jsonString + "]", e)
-    }
+  it should "render all news with specific rss url" in {
+    val objectId = user.feed.head
+    get(s"/api/v1/news/url/$objectId")
+    val result = parseJson[Seq[RssNews]](response.body)
+    result.size should be > 0
+  }
+
+  it should "response with 400 bad request for news list with specific url" in {
+    get("/api/v1/news/url/randomtext")
+    response.status should equal (HttpResponseStatus.BAD_REQUEST)
   }
 
 }

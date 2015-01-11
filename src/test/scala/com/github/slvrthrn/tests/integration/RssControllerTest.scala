@@ -18,7 +18,7 @@ import scaldi.Injector
  * Created by slvr on 1/9/15.
  */
 //@Ignore
-class RssControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matchers {
+class RssControllerTest extends IntegrationTest {
 
   override def beforeAll() = {
     helper = new TestHelper
@@ -35,8 +35,6 @@ class RssControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Match
     helper.clearCache
   }
 
-  implicit val inj: Injector = BindingsProvider.getBindings
-  implicit val formats = DefaultFormats
   var helper: TestHelper = _
   var randomRegLogin: String = _
   var randomRegPwd: String = _
@@ -77,20 +75,4 @@ class RssControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Match
     response.status should equal (HttpResponseStatus.NOT_FOUND)
   }
 
-  def parseJson[T](jsonString: String)(implicit m: Manifest[T]): T = {
-    try {
-      read[T](jsonString)
-    } catch {
-      case e: Exception => throw new Exception("can`t parse string [" + jsonString + "]", e)
-    }
-  }
-
-  def postJson(path: String, json: String = "", headers: Map[String, String] = Map()) = {
-    val headersWithContentType = headers ++ Map("Content-Type" -> "application/json")
-    post(
-      path = path,
-      body = json,
-      headers = headersWithContentType
-    )
-  }
 }

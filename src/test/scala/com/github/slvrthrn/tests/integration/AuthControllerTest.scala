@@ -16,7 +16,7 @@ import scaldi.Injector
 * Created by slvr on 1/8/15.
 */
 //@Ignore
-class AuthControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matchers {
+class AuthControllerTest extends IntegrationTest {
 
   override def beforeAll() = {
     helper = new TestHelper
@@ -29,8 +29,6 @@ class AuthControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matc
     helper.clearCache
   }
 
-  implicit val formats = DefaultFormats
-  implicit val inj: Injector = BindingsProvider.getBindings
   var helper: TestHelper = _
   var randomRegLogin: String = _
   var randomRegPwd: String = _
@@ -73,23 +71,6 @@ class AuthControllerTest extends FlatSpecHelper with BeforeAndAfterAll with Matc
     result should equal ("Login is OK and session is created")
     val sid = helper.cookieValue("sid", response).get
     sid should have length 36
-  }
-
-  def parseJson[T](jsonString: String)(implicit m: Manifest[T]): T = {
-    try {
-      read[T](jsonString)
-    } catch {
-      case e: Exception => throw new Exception("can`t parse string [" + jsonString + "]", e)
-    }
-  }
-
-  def postJson(path: String, json: String = "", headers: Map[String, String] = Map()) = {
-    val headersWithContentType = headers ++ Map("Content-Type" -> "application/json")
-    post(
-      path = path,
-      body = json,
-      headers = headersWithContentType
-    )
   }
 
 }
