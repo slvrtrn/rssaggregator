@@ -18,6 +18,8 @@ trait RssNewsRepo extends MongoDaoRepository[RssNews] { self: InjectHelper =>
 
   def findByParent(parent: ObjectId, limit: Int = 0): Future[Seq[RssNews]]
 
+  def findByFeed(feed: Set[ObjectId], limit: Int = 0): Future[Seq[RssNews]]
+
   def removeByParent(parent: ObjectId): Future[Boolean]
 
 }

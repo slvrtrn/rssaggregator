@@ -66,21 +66,22 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
 
   def getNewsById(id: ObjectId): Future[Option[RssNews]] = newsRepo.findById(id)
 
-  def getNews(user: User): Future[Seq[RssNews]] = {
+  def getNewsByParent(parent: ObjectId, limit: Int = 0): Future[Seq[RssNews]] = newsRepo.findByParent(parent, limit)
+
+  def getNews(user: User, limit: Int): Future[Seq[RssNews]] = {
     val now = new DateTime
     for {
       urls <- urlRepo.findByUser(user)
-      news <- (Future collect urls.map { rssUrl =>
-        if (Seconds.secondsBetween(rssUrl.lastUpdate, now).getSeconds > 60)
-          loadNews(rssUrl)
-        else
-          newsRepo.findByParent(rssUrl._id)
-      }).map(_.flatten)
+      _ <- {
+        val feedToUpdate = urls.filter(rssUrl => Seconds.secondsBetween(rssUrl.lastUpdate, now).getSeconds > 60)
+        Future collect feedToUpdate.map(loadNews)
+      }
+      news <- newsRepo.findByFeed(user.feed, limit)
     } yield news
   }
 
-  def getNewsWithRange(user: User, startFrom: ObjectId, limit: Int): Future[Seq[RssNews]] = {
-    newsRepo.findAllWithRange("parent" $in user.feed, startFrom, limit)
+  def getNewsWithRange(feed: Set[ObjectId], startFrom: types.ObjectId, limit: Int): Future[Seq[RssNews]] = {
+    newsRepo.findAllWithRange("parent" $in feed, startFrom, limit)
   }
 
   private def loadNews(rssUrl: RssUrl): Future[Seq[RssNews]] = {

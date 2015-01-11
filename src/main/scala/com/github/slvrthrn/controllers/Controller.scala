@@ -3,12 +3,13 @@ package com.github.slvrthrn.controllers
 import java.nio.charset.Charset
 
 import com.github.slvrthrn.filters.AuthRequest
-import com.github.slvrthrn.models.entities.User
+import com.github.slvrthrn.models.entities.{RssNews, User}
 import com.github.slvrthrn.repositories.UserRepo
 import com.twitter.finagle.http.Cookie
 import com.twitter.finatra.{Controller => FController, ResponseBuilder, Request => FinatraRequest}
 import com.twitter.util.Future
 import com.github.slvrthrn.utils.InjectHelper
+import org.bson.types.ObjectId
 import org.jboss.netty.handler.codec.http.DefaultCookie
 import org.json4s._
 import org.json4s.jackson.Serialization.{read, write}
@@ -61,7 +62,8 @@ trait Controller extends FController with InjectHelper {
     renderJsonError(errors, 400)
   }
 
-  protected def withUserContext(f: User => Future[ResponseBuilder])(implicit request: FinatraRequest): Future[ResponseBuilder] = {
+  protected def withUserContext(f: User => Future[ResponseBuilder])(implicit request: FinatraRequest)
+  : Future[ResponseBuilder] = {
     request.request match {
       case req: AuthRequest =>
         userRepo.findById(req.session.uid) flatMap {
@@ -81,6 +83,20 @@ trait Controller extends FController with InjectHelper {
             internalMessage = "There is no session in request")
         )
         renderJsonError(errors, 403)
+    }
+  }
+
+  protected def withObjectIdParam(f: ObjectId => Future[ResponseBuilder])(implicit request: FinatraRequest)
+  : Future[ResponseBuilder] = {
+    val param = request.routeParams.get("id")
+    param match {
+      case Some(id: String) =>
+        val res = Try(new ObjectId(id))
+        res match {
+          case Success(objectId: ObjectId) => f(objectId)
+          case Failure(e) => renderBadRequest()
+        }
+      case _ => renderBadRequest()
     }
   }
 

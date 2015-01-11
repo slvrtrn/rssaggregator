@@ -3,6 +3,7 @@ package com.github.slvrthrn.services
 import java.net.URL
 
 import com.github.slvrthrn.models.entities.{RssUrl, RssNews, User}
+import com.mongodb.casbah.Imports._
 import com.twitter.util.Future
 import org.bson.types.ObjectId
 
@@ -15,12 +16,14 @@ trait RssService {
 
   def removeRssUrl(id: ObjectId, user: User): Future[Boolean]
 
-  def getNews(user: User): Future[Seq[RssNews]]
+  def getNews(user: User, onPageLimit: Int): Future[Seq[RssNews]]
 
   def getNewsById(id: ObjectId): Future[Option[RssNews]]
 
   def findRssUrlByUser(user: User): Future[Seq[RssUrl]]
   
-  def getNewsWithRange(user: User, startFrom: ObjectId, limit: Int): Future[Seq[RssNews]]
+  def getNewsWithRange(feed: Set[ObjectId], startFrom: ObjectId, limit: Int): Future[Seq[RssNews]]
+
+  def getNewsByParent(parent: ObjectId, limit: Int = 0): Future[Seq[RssNews]]
 
 }
