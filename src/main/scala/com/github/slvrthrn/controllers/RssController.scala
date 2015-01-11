@@ -55,25 +55,17 @@ class RssController(implicit val inj: Injector) extends Controller {
 
   delete ("/api/v1/urls/:id") { implicit request =>
     withUserContext { user =>
-      val param = request.routeParams.get("id")
-      param match {
-        case Some(id: String) =>
-          val res = Try(new ObjectId(id))
-          res match {
-            case Success(objectId: ObjectId) =>
-              val result = rssService.removeRssUrl(objectId, user)
-              result flatMap {
-                case true => renderJson(result)
-                case false =>
-                  val errors = Seq(ErrorPayload(
-                    "Specified URL wasn't found in your subscriptions list",
-                    "RSS URL wasn't found"
-                  ))
-                  renderJsonError(errors, 404)
-              }
-            case Failure(e) => renderBadRequest()
-          }
-        case _ => renderBadRequest()
+      withObjectIdParam { objectId =>
+        val result = rssService.removeRssUrl(objectId, user)
+        result flatMap {
+          case true => renderJson(result)
+          case false =>
+            val errors = Seq(ErrorPayload(
+              "Specified URL wasn't found in your subscriptions list",
+              "RSS URL wasn't found"
+            ))
+            renderJsonError(errors, 404)
+        }
       }
     }
   }
