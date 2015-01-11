@@ -7,6 +7,7 @@ import com.twitter.util.Future
 import com.wix.accord.{validate, Success}
 import com.github.slvrthrn.services.{SessionService, UserService}
 import com.github.slvrthrn.models.forms.{LoginForm, RegForm}
+import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import scaldi.Injector
 
 /**
@@ -40,19 +41,19 @@ class AuthController(implicit val inj: Injector) extends Controller {
                 val errors = Seq(ErrorPayload(
                   "Invalid login or password",
                   "User service login check failed"))
-                renderForbidden(errors)
+                renderJsonError(errors, HttpResponseStatus.FORBIDDEN)
             }
           case _ =>
             val errors = Seq(ErrorPayload(
               "Error with form validation: maybe there are empty fields?",
               "LoginForm validation failed"))
-            renderBadRequest(errors)
+            renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
         }
       case _ =>
         val errors = Seq(ErrorPayload(
           "Malformed login JSON request",
           "Error with parsing LoginForm JSON"))
-        renderBadRequest(errors)
+        renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
     }
   }
 
@@ -79,19 +80,19 @@ class AuthController(implicit val inj: Injector) extends Controller {
                 val errors = Seq(ErrorPayload(
                   "Couldn't create new user, maybe there is registered user with same name?",
                   "User service failed to create new user"))
-                renderConflict(errors)
+                renderJsonError(errors, HttpResponseStatus.CONFLICT)
             }
           case _ =>
             val errors = Seq(ErrorPayload(
               "Error with form validation: maybe there are empty fields?",
               "RegForm validation failed"))
-            renderBadRequest(errors)
+            renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
         }
       case _ =>
         val errors = Seq(ErrorPayload(
           "Malformed registration JSON request",
           "Error with parsing RegForm JSON"))
-        renderBadRequest(errors)
+        renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
     }
   }
 
@@ -99,6 +100,6 @@ class AuthController(implicit val inj: Injector) extends Controller {
     val errors = Seq(ErrorPayload(
       "Couldn't create session",
       "Session service failed to create session"))
-    renderInternal(errors)
+    renderJsonError(errors, HttpResponseStatus.INTERNAL_SERVER_ERROR)
   }
 }

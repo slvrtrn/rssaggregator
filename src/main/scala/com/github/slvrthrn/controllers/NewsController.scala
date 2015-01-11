@@ -3,6 +3,7 @@ package com.github.slvrthrn.controllers
 import com.github.slvrthrn.models.entities.RssNews
 import com.github.slvrthrn.services.RssService
 import com.typesafe.config.Config
+import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import scaldi.Injector
 
 /**
@@ -33,7 +34,7 @@ class NewsController(implicit val inj: Injector) extends Controller {
               "There are no news with specified ID",
               "News item was not found"
             ))
-            renderNotFound(errors)
+            renderJsonError(errors, HttpResponseStatus.NOT_FOUND)
         }
       }
     }

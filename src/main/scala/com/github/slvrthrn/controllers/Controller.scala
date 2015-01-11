@@ -38,9 +38,9 @@ trait Controller extends FController with InjectHelper {
     render.plain(json).header("Content-Type","application/json").toFuture
   }
 
-  protected def renderJsonError[T<:AnyRef](errors: Traversable[ErrorPayload], status: Int)(implicit m: Manifest[T]): Future[ResponseBuilder] = {
+  protected def renderJsonError[T<:AnyRef](errors: Traversable[ErrorPayload], status: HttpResponseStatus)(implicit m: Manifest[T]): Future[ResponseBuilder] = {
     val json = write(errors)
-    render.plain(json).status(status).toFuture
+    render.plain(json).status(status.getCode).toFuture
   }
 
   protected def renderJsonWithCookie[T<:AnyRef](data: T, cookie: Cookie)(implicit m: Manifest[T]): Future[ResponseBuilder] = {
@@ -57,26 +57,6 @@ trait Controller extends FController with InjectHelper {
     }
   }
 
-  protected def renderNotFound(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
-    renderJsonError(errors, HttpResponseStatus.NOT_FOUND.getCode)
-  }
-
-  protected def renderBadRequest(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
-    renderJsonError(errors, HttpResponseStatus.BAD_REQUEST.getCode)
-  }
-
-  protected def renderForbidden(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
-    renderJsonError(errors, HttpResponseStatus.FORBIDDEN.getCode)
-  }
-
-  protected def renderConflict(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
-    renderJsonError(errors, HttpResponseStatus.CONFLICT.getCode)
-  }
-
-  protected def renderInternal(errors: Seq[ErrorPayload]): Future[ResponseBuilder] = {
-    renderJsonError(errors, HttpResponseStatus.INTERNAL_SERVER_ERROR.getCode)
-  }
-
   protected def withUserContext(f: User => Future[ResponseBuilder])(implicit request: FinatraRequest)
   : Future[ResponseBuilder] = {
     request.request match {
@@ -89,7 +69,7 @@ trait Controller extends FController with InjectHelper {
                 "Invalid session cookie. You will be redirected",
                 "Cannot find user with UID stored in session")
             )
-            renderForbidden(errors)
+            renderJsonError(errors, HttpResponseStatus.FORBIDDEN)
         }
       case _ =>
         val errors = Seq(
@@ -97,7 +77,7 @@ trait Controller extends FController with InjectHelper {
             "Invalid session cookie. You will be redirected",
             "There is no session in request")
         )
-        renderForbidden(errors)
+        renderJsonError(errors, HttpResponseStatus.FORBIDDEN)
     }
   }
 
@@ -113,13 +93,13 @@ trait Controller extends FController with InjectHelper {
             val errors = Seq(ErrorPayload(
               "Invalid ID specified in request URL",
               "Couldn't parse ObjectId from URL"))
-            renderBadRequest(errors)
+            renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
         }
       case _ =>
         val errors = Seq(ErrorPayload(
           "ID was not specified in request URL",
           "Couldn't get ID string from URL"))
-        renderBadRequest(errors)
+        renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
     }
   }
 

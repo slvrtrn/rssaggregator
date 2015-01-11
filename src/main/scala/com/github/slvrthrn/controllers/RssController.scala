@@ -5,6 +5,7 @@ import java.net.URL
 import com.github.slvrthrn.models.entities.{User, RssUrl}
 import com.github.slvrthrn.services.{UserService, RssService}
 import org.bson.types.ObjectId
+import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import scaldi.Injector
 
 import scala.util.{Failure, Success, Try}
@@ -41,14 +42,14 @@ class RssController(implicit val inj: Injector) extends Controller {
                 "Specified URL is already in your RSS subscriptions list",
                 "Duplicate RSS URL"
               ))
-              renderConflict(errors)
+              renderJsonError(errors, HttpResponseStatus.CONFLICT)
           }
         case _ =>
           val errors = Seq(ErrorPayload(
             "Invalid URL format",
             "Cannot parse URL JSON"
           ))
-          renderBadRequest(errors)
+          renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
       }
     }
   }
@@ -64,7 +65,7 @@ class RssController(implicit val inj: Injector) extends Controller {
               "Specified URL wasn't found in your subscriptions list",
               "RSS URL wasn't found"
             ))
-            renderNotFound(errors)
+            renderJsonError(errors, HttpResponseStatus.NOT_FOUND)
         }
       }
     }
