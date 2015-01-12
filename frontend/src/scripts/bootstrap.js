@@ -12,6 +12,9 @@ angular.module('rssaggregator', [
     '$urlRouterProvider',
     'RestangularProvider',
     function($provide, $locationProvider, $stateProvider, $urlRouterProvider, RestangularProvider) {
+        RestangularProvider.setRestangularFields({
+            id: '_id.$oid'
+        });
         RestangularProvider.setBaseUrl('/api/v1');
         $locationProvider.html5Mode(true);
         $urlRouterProvider.when('/','/app/news/').otherwise('/app/news');

@@ -13,6 +13,9 @@ case class RssNews(
                     description: String,
                     pubDate: DateTime,
                     parent: ObjectId,
+                    enclosure: Option[RssNewsEnclosure] = None,
                     _id: ObjectId = new ObjectId
 
                     ) extends MongoEntity
+
+case class RssNewsEnclosure(url: String, mime: String)

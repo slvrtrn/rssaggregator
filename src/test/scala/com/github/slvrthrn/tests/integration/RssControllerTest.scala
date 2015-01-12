@@ -4,6 +4,7 @@ import com.github.slvrthrn.config.BindingsProvider
 import com.github.slvrthrn.controllers.RssController
 import com.github.slvrthrn.filters.IndexFilter
 import com.github.slvrthrn.helpers.TestHelper
+import com.github.slvrthrn.models.dto.RssUrlDto
 import com.github.slvrthrn.models.entities.{RssUrl, User}
 import com.twitter.finatra.FinatraServer
 import com.twitter.finatra.test.FlatSpecHelper
@@ -49,7 +50,7 @@ class RssControllerTest extends IntegrationTest {
   }
 
   it should "add new RSS in user's feed" in {
-    val json = write[String](rss)
+    val json = write(RssUrlDto(rss))
     postJson("/api/v1/urls", json)
     response.status should equal (HttpResponseStatus.OK)
   }

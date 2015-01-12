@@ -1,14 +1,26 @@
 div.modal-header
-    h3 My subscriptions
+    h3 Subscriptions control panel
 div.modal-body
-    div(ng-if="currentUser.feed.length == 0")
-        span You didn't add any subscriptions yet
-    div(ng-if="currentUser.feed.length > 0", ng-repeat="f in currentUser.feed")
-        div {{f.url}}
-            button.btn.btn-default.btn-xs(type="button", ng-click="removeRssUrl()") x
+    table(ng-if="feed.length > 0").table
+        thead
+            tr
+                th #
+                th URL
+                th
+        tbody
+            tr(ng-repeat="f in feed")
+                td {{$index + 1}}
+                td
+                    a(href="{{f.url}}", target="_blank") {{f.url}}
+                td.removeRssUrlTd
+                    span.removeRssUrl(ng-click="removeRssUrl($index)") remove
     div
         h3 Add new RSS
-        input.form-control.addRssInput(ng-model="rssUrl")
-        button.btn.btn-default.btn.xs(type="button", ng-click="addRssUrl()") Add
+        div.input-group
+            input.form-control.addRssInput(ng-model="rssUrl", placeholder="Copy and paste RSS Url here...")
+            span.input-group-btn
+                button.btn.btn-default(type="button", ng-click="addRssUrl()") Add
+        alert.subscriptionsAlert(ng-show="alert.show",
+        type="{{alert.type}}", close="closeAlert($index)") {{alert.msg}}
 div.modal-footer
     button.btn.btn-default(ng-click="close()") Close

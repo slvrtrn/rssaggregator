@@ -2,6 +2,7 @@ package com.github.slvrthrn.controllers
 
 import java.net.URL
 
+import com.github.slvrthrn.models.dto.RssUrlDto
 import com.github.slvrthrn.models.entities.{User, RssUrl}
 import com.github.slvrthrn.services.{UserService, RssService}
 import org.bson.types.ObjectId
@@ -21,7 +22,7 @@ class RssController(implicit val inj: Injector) extends Controller {
 
   get("/api/v1/urls") { implicit request =>
     withUserContext { user =>
-      val result = rssService.findRssUrlByUser(user)
+      val result = rssService.findRssUrlsByUser(user)
       result flatMap {
         case seq: Seq[RssUrl] => renderJsonArray(seq)
       }
@@ -30,26 +31,28 @@ class RssController(implicit val inj: Injector) extends Controller {
 
   post ("/api/v1/urls") { implicit request =>
     withUserContext { user =>
-      val urlOpt = parseJsonRequest[String](request)
+      val urlOpt = parseJsonRequest[RssUrlDto](request)
       urlOpt match {
-        case Some(str: String) =>
-          val url = new URL(str)
-          val result = rssService.addRssUrl(url, user)
-          result flatMap {
-            case user: User => renderJson(user.feed)
-            case _ =>
-              val errors = Seq(ErrorPayload(
-                "Specified URL is already in your RSS subscriptions list",
-                "Duplicate RSS URL"
-              ))
-              renderJsonError(errors, HttpResponseStatus.CONFLICT)
+        case Some(dto: RssUrlDto) =>
+          Try(new URL(dto.url)) match {
+            case Success(url: URL) =>
+              val result = rssService.addRssUrl(url, user)
+              result flatMap {
+                updatedUser: User =>
+                  if(updatedUser.feed equals user.feed) {
+                    val errors = Seq(ErrorPayload(
+                      "Specified URL is already in your RSS subscriptions list",
+                      "Duplicate RSS URL"
+                    ))
+                    renderJsonError(errors, HttpResponseStatus.CONFLICT)
+                  } else {
+                    val feed = rssService.findRssUrlsByUser(updatedUser)
+                    feed flatMap renderJson[Seq[RssUrl]]
+                  }
+              }
+            case Failure(e) => renderInvalidUrlFormat
           }
-        case _ =>
-          val errors = Seq(ErrorPayload(
-            "Invalid URL format",
-            "Cannot parse URL JSON"
-          ))
-          renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
+        case _ => renderInvalidUrlFormat
       }
     }
   }
@@ -69,6 +72,14 @@ class RssController(implicit val inj: Injector) extends Controller {
         }
       }
     }
+  }
+
+  private def renderInvalidUrlFormat = {
+    val errors = Seq(ErrorPayload(
+      "Invalid URL format",
+      "Cannot parse URL from JSON"
+    ))
+    renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
   }
 
 }

@@ -1,10 +1,16 @@
-button.btn.btn-default.btn-sm.refreshBtn(ng-click="refreshNewsFeed()") Refresh
-button.btn.btn-default.btn-sm.addRssBtn(ng-click="openSubscriptionsModal()") Add RSS
+button.btn.btn-default.btn-sm.mySubsBtn(ng-click="openSubscriptionsModal()") My subscriptions
+button.btn.btn-default.btn-sm.refreshBtn(ng-click="refreshNewsFeed()",ng-disabled="isLoading") Refresh
+span.ajaxLoader(ng-show="isLoading") Loading, please wait ...
 div.container-fluid
-    div(ng-repeat="n in news")
-        div.row.rssItem
-            div.clickable(ng-click="openNewsItemModal($index)")
-                div.col-md-12.rssTitle {{n.title}}
-                div.col-md-12.rssDesc {{n.description}}
-            div.col-md-2.rssLink {{parsePubDate(n.pubDate)}}
-                a.readMore(href="{{n.link}}", target="_blank") >>
+    div(ng-repeat="n in news track by $index", ng-show="!isLoading", ng-if="$even")
+        div(ng-repeat="i in [$index, $index + 1]", ng-if="news[i] != null")
+            div.col-md-5.rssItem
+                div
+                    h4 {{news[i].title}}
+                    p
+                        img.rssImg(ng-show="isDefined(news[i].enclosure)", ng-src="{{news[i].enclosure.url}}")
+                        | {{news[i].description}}
+                        br
+                        | {{parsePubDate(news[i].pubDate)}}
+                        a.readMore(href="{{news[i].link}}", target="_blank") >>
+            div.col-md-offset-1(ng-if="$even")

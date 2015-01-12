@@ -21,11 +21,11 @@ class RssUrlCache(implicit inj: Injector) extends RssUrlRepoImpl with Cache {
     }
   }
 
-  override def findByUser(user: User): Future[Seq[RssUrl]] = {
-    rssUrlSeqCache.getOrElseUpdate(user._id) {
-      super.findByUser(user)
-    }
-  }
+//  override def findByUser(user: User): Future[Seq[RssUrl]] = {
+//    rssUrlSeqCache.getOrElseUpdate(user._id) {
+//      super.findByUser(user)
+//    }
+//  }
 
   override def findById(id: ObjectId): Future[Option[RssUrl]] = {
     rssUrlOptionIdCache.getOrElseUpdate(id) {
@@ -37,6 +37,7 @@ class RssUrlCache(implicit inj: Injector) extends RssUrlRepoImpl with Cache {
     super.save(url) onSuccess {
       case rss: RssUrl =>
         rssUrlOptionIdCache.evict(rss._id)
+        rssUrlOptionUrlCache.evict(rss.url)
         rssUrlOptionUrlCache.save(rss.url, Some(rss))
     }
   }

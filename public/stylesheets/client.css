@@ -7,17 +7,29 @@
   -webkit-box-shadow: 0 0 2px grey;
   box-shadow: 0 0 2px grey;
 }
+.mySubsBtn {
+  margin-left: 26px;
+}
 .feedTitle {
   padding-left: 30px;
-}
-.rssTitle {
-  font-weight: bold;
 }
 .rssLink {
   text-align: left;
 }
+.rssImg {
+  clear: left;
+  float: left;
+  position: relative;
+  margin-right: 20px;
+  padding-bottom: 10px;
+  font-size: small;
+  text-align: center;
+  font-weight: bold;
+}
 .rssItem {
-  margin: 12px 12px 12px 12px;
+  position: relative;
+  text-align: justify;
+  margin: 12px 12px 0 12px;
   -moz-box-shadow: 0 0 2px #c3c3c3;
   -webkit-box-shadow: 0 0 2px #c3c3c3;
   box-shadow: 0 0 2px #c3c3c3;
@@ -29,7 +41,7 @@
   margin: 10px 0 0 30px;
 }
 .refreshBtn {
-  margin-left: 26px;
+  margin-left: 5px;
 }
 .readMore {
   padding-left: 6px;
@@ -38,5 +50,27 @@
   font-weight: bold;
 }
 .addRssInput {
-  width: 200px;
+  width: 500px;
+  margin-right: 6px;
+  display: inline-block;
+}
+.myGlyphIcon {
+  top: 2px;
+}
+.removeRssUrl {
+  border-bottom: dashed 1px;
+}
+.removeRssUrl:hover {
+  cursor: pointer;
+}
+.removeRssUrlTd {
+  width: 68px;
+}
+.subscriptionsAlert {
+  margin-top: 6px;
+}
+.ajaxLoader {
+  font-style: italic;
+  color: #858585;
+  margin-left: 24px;
 }

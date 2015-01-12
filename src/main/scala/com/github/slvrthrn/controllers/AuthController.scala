@@ -25,7 +25,7 @@ class AuthController(implicit val inj: Injector) extends Controller {
 
   get("/api/v1/whoami") { implicit request =>
     withUserContext { user =>
-      val urls = rssService.findRssUrlByUser(user)
+      val urls = rssService.findRssUrlsByUser(user)
       urls flatMap {
         case feed: Seq[RssUrl] => renderJson(WhoAmI(user._id, user.login, feed))
       }

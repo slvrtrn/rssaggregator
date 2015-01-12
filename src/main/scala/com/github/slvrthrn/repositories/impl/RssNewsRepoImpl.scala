@@ -13,7 +13,9 @@ import com.mongodb.casbah.Imports._
  */
 class RssNewsRepoImpl(implicit val inj: Injector) extends RssNewsRepo with InjectHelper {
 
-  def findByParent(parent: ObjectId, limit: Int = 0): Future[Seq[RssNews]] = find("parent" $eq parent, limit)
+  def findByParent(parent: ObjectId, limit: Int = 0): Future[Seq[RssNews]] = {
+    find("parent" $eq parent, limit, MongoDBObject("pubDate" -> -1))
+  }
 
   def removeByParent(parent: ObjectId): Future[Boolean] = removeBy("parent" $eq parent)
 
