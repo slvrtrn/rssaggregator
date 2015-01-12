@@ -12,4 +12,6 @@ trait SessionService {
 
   def createSession(u: User): Future[Option[String]]
 
+  def destroySession(sid: String): Future[Boolean]
+
 }

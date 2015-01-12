@@ -1,0 +1,42 @@
+.authContainer {
+  float: none;
+  margin-left: auto;
+  margin-right: auto;
+  width: 600px;
+  -moz-box-shadow: 0 0 2px grey;
+  -webkit-box-shadow: 0 0 2px grey;
+  box-shadow: 0 0 2px grey;
+}
+.feedTitle {
+  padding-left: 30px;
+}
+.rssTitle {
+  font-weight: bold;
+}
+.rssLink {
+  text-align: left;
+}
+.rssItem {
+  margin: 12px 12px 12px 12px;
+  -moz-box-shadow: 0 0 2px #c3c3c3;
+  -webkit-box-shadow: 0 0 2px #c3c3c3;
+  box-shadow: 0 0 2px #c3c3c3;
+}
+.clickable:hover {
+  cursor: pointer;
+}
+.loadMoreBtn {
+  margin: 10px 0 0 30px;
+}
+.refreshBtn {
+  margin-left: 26px;
+}
+.readMore {
+  padding-left: 6px;
+}
+.modalRssTitle {
+  font-weight: bold;
+}
+.addRssInput {
+  width: 200px;
+}

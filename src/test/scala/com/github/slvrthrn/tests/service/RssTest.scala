@@ -24,6 +24,13 @@ class RssTest extends FlatSpec with Matchers with BeforeAndAfterAll {
     helper.registerUser(randomRegLogin, randomPwd)
   }
 
+  override def afterAll() = {
+    helper.deleteUser(randomRegLogin)
+    helper.deleteRssUrl(rssUrl)
+    helper.clearNewsCollection
+    helper.clearCache
+  }
+
   it should "insert new RSS URL successfully and then delete it with ObjectId" in {
     val user = helper.getUser(randomRegLogin, randomPwd)
     val updatedUser = helper.insertRssUrl(rssUrl, user)
@@ -43,13 +50,6 @@ class RssTest extends FlatSpec with Matchers with BeforeAndAfterAll {
     val user = helper.getUser(randomRegLogin, randomPwd)
     val result = helper.getNews(user)
     result.size should be > 0
-  }
-
-  override def afterAll() = {
-    helper.deleteUser(randomRegLogin)
-    helper.deleteRssUrl(rssUrl)
-    helper.clearNewsCollection
-    helper.clearCache
   }
 
 }

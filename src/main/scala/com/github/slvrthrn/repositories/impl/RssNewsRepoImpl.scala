@@ -17,6 +17,8 @@ class RssNewsRepoImpl(implicit val inj: Injector) extends RssNewsRepo with Injec
 
   def removeByParent(parent: ObjectId): Future[Boolean] = removeBy("parent" $eq parent)
 
-  def findByFeed(feed: Set[ObjectId], limit: Int): Future[Seq[RssNews]] = find("parent" $in feed, limit)
+  def findByFeed(feed: Set[ObjectId], limit: Int): Future[Seq[RssNews]] = {
+    find("parent" $in feed, limit, MongoDBObject("pubDate" -> -1))
+  }
 
 }

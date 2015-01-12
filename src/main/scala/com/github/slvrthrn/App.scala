@@ -2,7 +2,7 @@ package com.github.slvrthrn
 
 import com.twitter.finatra.FinatraServer
 import com.github.slvrthrn.config.BindingsProvider
-import com.github.slvrthrn.controllers.{AuthController, IndexController}
+import com.github.slvrthrn.controllers.{RssController, NewsController, AuthController, IndexController}
 import com.github.slvrthrn.filters.IndexFilter
 
 /**
@@ -15,8 +15,9 @@ object App extends FinatraServer {
 
   private implicit val inj = BindingsProvider.getBindings
 
-  register(new AuthController)
   addFilter(new IndexFilter)
+  register(new AuthController)
   register(new IndexController)
-
+  register(new NewsController)
+  register(new RssController)
 }

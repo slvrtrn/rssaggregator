@@ -42,7 +42,7 @@ class IndexControllerTest extends IntegrationTest {
   it should "show index page for authenticated user" in {
     val sid = helper.getSessionId(user)
     get("/", headers = Map("Cookie" -> s"sid=$sid"))
-    response.body should include ("Hello world")
+    response.body should include ("ui-view=\"layout\"")
   }
 
   it should "not show index page for non-authenticated user" in {

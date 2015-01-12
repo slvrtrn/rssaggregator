@@ -8,6 +8,7 @@ import com.github.slvrthrn.services.RssService
 import com.github.slvrthrn.utils.InjectHelper
 import com.twitter.util.Future
 import org.bson.types
+import org.joda.time.format.DateTimeFormat
 import org.joda.time.{Seconds, DateTime}
 import scaldi.Injector
 import com.mongodb.casbah.Imports._
@@ -21,11 +22,13 @@ import scala.xml.{Node, XML}
  */
 class RssServiceImpl (implicit val inj: Injector) extends RssService with InjectHelper {
 
-  val newsRepo = inject[RssNewsRepo]
+  private val newsRepo = inject[RssNewsRepo]
 
-  val urlRepo = inject[RssUrlRepo]
+  private val urlRepo = inject[RssUrlRepo]
 
-  val userRepo = inject[UserRepo]
+  private val userRepo = inject[UserRepo]
+
+  private val formatter = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss Z")
 
   private implicit val executionContext = inject[ExecutionContext]
 
@@ -108,11 +111,12 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
   }
 
   private def buildNews(node: Node, id: ObjectId): RssNews = new RssNews(
-    title = (node \\ "title").text,
-    link = (node \\ "link").text,
-    description = (node \\ "description").text,
-    parent = id
-  )
+      title = (node \\ "title").text,
+      link = (node \\ "link").text,
+      description = (node \\ "description").text,
+      pubDate = formatter.parseDateTime((node \\ "pubDate").text),
+      parent = id
+    )
 
   private def checkRssUrlExitestence(url: String): Future[Option[RssUrl]] = {
     urlRepo.findByUrl(url) map {

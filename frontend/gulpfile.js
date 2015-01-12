@@ -6,6 +6,7 @@ var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     less = require('gulp-less'),
     minifyCSS = require('gulp-minify-css'),
+    jade = require('gulp-jade'),
     del = require('del');
 
 gulp.task('scripts', function() {
@@ -24,9 +25,26 @@ gulp.task('styles', function() {
         .pipe(gulp.dest('../public/stylesheets'));
 });
 
-gulp.task('frontend', ['scripts', 'styles']);
+gulp.task('templates', function() {
+    var YOUR_LOCALS = {};
+
+    gulp.src('src/templates/*.jade')
+        .pipe(jade({
+            locals: YOUR_LOCALS
+        }))
+        .pipe(gulp.dest('../public/templates/'));
+    gulp.src('src/templates/**/*.jade')
+        .pipe(jade({
+            locals: YOUR_LOCALS
+        }))
+        .pipe(gulp.dest('../public/templates/'));
+});
+
+gulp.task('frontend', ['scripts', 'styles', 'templates']);
+//gulp.task('frontend', ['scripts', 'templates']);
 
 gulp.task('watch', function() {
     gulp.watch('src/scripts/**', ['scripts']);
-    gulp.watch('src/styles/**/*', ['styles']);
+    gulp.watch('src/styles/**', ['styles']);
+    gulp.watch('src/templates/**', ['templates']);
 });

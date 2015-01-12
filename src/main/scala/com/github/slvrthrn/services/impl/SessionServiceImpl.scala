@@ -34,4 +34,12 @@ class SessionServiceImpl (implicit val inj: Injector) extends SessionService wit
     }
   }
 
+  def destroySession(sid: String): Future[Boolean] = {
+    val result = sessionCache.del(sid)
+    result.asTwitter map {
+      case 1 => true
+      case _ => false
+    }
+  }
+
 }

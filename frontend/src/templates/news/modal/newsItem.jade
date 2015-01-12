@@ -1,0 +1,6 @@
+div.modal-header.modalRssTitle {{item.title}}
+div.modal-body.modalRssDesc {{item.description}}
+div.modal-body {{parsePubDate(item.pubDate)}}
+        a.readMore(href="{{item.link}}", target="_blank") >>
+div.modal-footer
+    button.btn.btn-default(ng-click="close()") Close

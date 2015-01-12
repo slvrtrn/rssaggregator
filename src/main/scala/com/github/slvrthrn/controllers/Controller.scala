@@ -3,7 +3,7 @@ package com.github.slvrthrn.controllers
 import java.nio.charset.Charset
 
 import com.github.slvrthrn.filters.UserRequest
-import com.github.slvrthrn.models.entities.{RssNews, User}
+import com.github.slvrthrn.models.entities.User
 import com.github.slvrthrn.repositories.UserRepo
 import com.twitter.finagle.http.Cookie
 import com.twitter.finatra.{Controller => FController, ResponseBuilder, Request => FinatraRequest}
@@ -11,8 +11,10 @@ import com.twitter.util.Future
 import com.github.slvrthrn.utils.InjectHelper
 import org.bson.types.ObjectId
 import org.jboss.netty.handler.codec.http.{HttpResponseStatus, DefaultCookie}
+import org.json4s.mongo.ObjectIdSerializer
 import org.json4s.{Formats, DefaultFormats}
 import org.json4s.jackson.Serialization.{read, write}
+import org.json4s.ext.DateTimeSerializer
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Try, Success}
@@ -24,7 +26,7 @@ trait Controller extends FController with InjectHelper {
 
   protected val userRepo: UserRepo = inject[UserRepo]
   protected implicit val executionContext = inject[ExecutionContext]
-  protected implicit val formats: Formats = DefaultFormats
+  protected implicit val formats: Formats = DefaultFormats + new ObjectIdSerializer + DateTimeSerializer
   protected val defaultCookiePath = "/"
   protected val defaultCookieMaxAge = 86400
 

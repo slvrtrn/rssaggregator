@@ -37,6 +37,10 @@ class SessionCache(implicit val inj: Injector) extends InjectHelper {
     }
   }
 
+  def del(key: String): Future[Long] = {
+    client.del(cacheKey(key))
+  }
+
   private def cacheKey(key: String) = "sessions_id." + key
 
 }

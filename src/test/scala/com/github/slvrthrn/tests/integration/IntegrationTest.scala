@@ -3,6 +3,7 @@ package com.github.slvrthrn.tests.integration
 import com.github.slvrthrn.config.BindingsProvider
 import com.twitter.finatra.test.FlatSpecHelper
 import org.json4s.DefaultFormats
+import org.json4s.ext.DateTimeSerializer
 import org.json4s.jackson.Serialization._
 import org.scalatest.{Matchers, BeforeAndAfterAll}
 import scaldi.Injector
@@ -12,7 +13,7 @@ import scaldi.Injector
  */
 trait IntegrationTest extends FlatSpecHelper with BeforeAndAfterAll with Matchers {
 
-  implicit val formats = DefaultFormats
+  implicit val formats = DefaultFormats + DateTimeSerializer
   implicit val inj: Injector = BindingsProvider.getBindings
 
   def parseJson[T](jsonString: String)(implicit m: Manifest[T]): T = {

@@ -1,0 +1,14 @@
+div.modal-header
+    h3 My subscriptions
+div.modal-body
+    div(ng-if="currentUser.feed.length == 0")
+        span You didn't add any subscriptions yet
+    div(ng-if="currentUser.feed.length > 0", ng-repeat="f in currentUser.feed")
+        div {{f.url}}
+            button.btn.btn-default.btn-xs(type="button", ng-click="removeRssUrl()") x
+    div
+        h3 Add new RSS
+        input.form-control.addRssInput(ng-model="rssUrl")
+        button.btn.btn-default.btn.xs(type="button", ng-click="addRssUrl()") Add
+div.modal-footer
+    button.btn.btn-default(ng-click="close()") Close

@@ -22,6 +22,7 @@ class IndexFilter(implicit val inj: Injector)
   def apply(request: FinagleRequest, service: Service[FinagleRequest, FinagleResponse]): Future[FinagleResponse] = {
     request.uri match {
       case "/reg" | "/login" | "/auth" => processAuthRequest(request, service)
+      case uri: String if uri.startsWith("/app/") => redirectToIndex(request, service)
       case uri: String if uri.contains("/api/v1/") | uri == "/" => processUserRequest(request, service)
       case _ => service(request)
     }
@@ -33,10 +34,7 @@ class IndexFilter(implicit val inj: Injector)
     request.cookies.get("sid") match {
       case Some(c: Cookie) =>
         sessionService.getSession(c.value) flatMap {
-          case Some(s: Session) =>
-            Future value new ResponseBuilder()
-              .plain("Already logged in, redirecting to index").status(HttpResponseStatus.FOUND.getCode)
-              .header("Location", "/").build
+          case Some(s: Session) => redirectToIndex(request, service, "Already logged in, redirecting to index")
           case _ => service(request)
         }
       case _ => service(request)
@@ -61,6 +59,15 @@ class IndexFilter(implicit val inj: Injector)
           .plain("Redirecting to auth").status(HttpResponseStatus.FOUND.getCode)
           .header("Location", "/auth").build
     }
+  }
+
+  private def redirectToIndex(request: FinagleRequest,
+                              service: Service[FinagleRequest, FinagleResponse],
+                               msg: String = "Redirecting to index")
+  : Future[FinagleResponse] = {
+    Future value new ResponseBuilder()
+      .plain(msg).status(HttpResponseStatus.FOUND.getCode)
+      .header("Location", "/").build
   }
 }
 

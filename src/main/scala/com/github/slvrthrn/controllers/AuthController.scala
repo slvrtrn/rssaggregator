@@ -1,12 +1,16 @@
 package com.github.slvrthrn.controllers
 
-import com.github.slvrthrn.models.entities.User
+import java.util.concurrent.TimeUnit
+
+import com.github.slvrthrn.models.entities.{RssUrl, User}
 import com.github.slvrthrn.views.AuthView
+import com.twitter.finagle.http.Cookie
 import com.twitter.finatra.ResponseBuilder
-import com.twitter.util.Future
+import com.twitter.util.{Duration, Future}
 import com.wix.accord.{validate, Success}
-import com.github.slvrthrn.services.{SessionService, UserService}
+import com.github.slvrthrn.services.{RssService, SessionService, UserService}
 import com.github.slvrthrn.models.forms.{LoginForm, RegForm}
+import org.bson.types.ObjectId
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import scaldi.Injector
 
@@ -17,10 +21,35 @@ class AuthController(implicit val inj: Injector) extends Controller {
 
   val userService = inject[UserService]
   val sessionService = inject[SessionService]
+  val rssService = inject[RssService]
+
+  get("/api/v1/whoami") { implicit request =>
+    withUserContext { user =>
+      val urls = rssService.findRssUrlByUser(user)
+      urls flatMap {
+        case feed: Seq[RssUrl] => renderJson(WhoAmI(user._id, user.login, feed))
+      }
+    }
+  }
 
   get("/auth") { request =>
     val authView = new AuthView
     render.html(authView.renderHtml).toFuture
+  }
+
+  get("/logout") { request =>
+    val cookie = request.cookies.get("sid")
+    cookie match {
+      case Some(c: Cookie) =>
+        val result = sessionService.destroySession(c.value)
+        val expired = new Cookie("sid", "")
+        expired.maxAge = Duration(-42, TimeUnit.DAYS)
+        result map {
+          case true => redirect("/auth", "You have successfully logged out").cookie(expired)
+          case false => redirect("/auth", "Invalid session cookie").cookie(expired)
+        }
+      case _ => redirect("/auth", "You are not logged in").toFuture
+    }
   }
 
   post("/login") { request =>
@@ -82,3 +111,5 @@ class AuthController(implicit val inj: Injector) extends Controller {
     renderJsonError(errors, HttpResponseStatus.INTERNAL_SERVER_ERROR)
   }
 }
+
+case class WhoAmI(_id: ObjectId, login: String, feed: Seq[RssUrl])

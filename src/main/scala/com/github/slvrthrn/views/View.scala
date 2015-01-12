@@ -15,7 +15,9 @@ trait View {
 
   def addToModel(key: String, entity: AnyRef): Unit = model += key -> entity
 
-  protected def getTemplate(name: String): JadeTemplate = Jade4J.getTemplate(s"./frontend/tpl/$name.jade")
+  protected def getTemplate(name: String): JadeTemplate = {
+    Jade4J.getTemplate(s"./src/main/scala/com/github/slvrthrn/views/tpl/$name.jade")
+  }
 
   protected def renderTemplate(template: JadeTemplate) = Jade4J.render(template, model)
 

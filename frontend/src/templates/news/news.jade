@@ -1,0 +1,10 @@
+button.btn.btn-default.btn-sm.refreshBtn(ng-click="refreshNewsFeed()") Refresh
+button.btn.btn-default.btn-sm.addRssBtn(ng-click="openSubscriptionsModal()") Add RSS
+div.container-fluid
+    div(ng-repeat="n in news")
+        div.row.rssItem
+            div.clickable(ng-click="openNewsItemModal($index)")
+                div.col-md-12.rssTitle {{n.title}}
+                div.col-md-12.rssDesc {{n.description}}
+            div.col-md-2.rssLink {{parsePubDate(n.pubDate)}}
+                a.readMore(href="{{n.link}}", target="_blank") >>
