@@ -99,6 +99,7 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
                     $scope.feed = Restangular.all("urls").getList().$object;
                     $scope.alert = {show: false, type: "danger", msg: ""};
                     $scope.addRssUrl = function() {
+                        $scope.closeAlert();
                         var newRssUrl = {url: $scope.rssUrl};
                         $scope.feed.post(newRssUrl).then(
                             function(res) {
@@ -116,6 +117,7 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
                         );
                     };
                     $scope.removeRssUrl = function(i) {
+                        $scope.closeAlert();
                         var item = $scope.feed[i];
                         item.remove().then(function() {
                             var index = $scope.feed.indexOf(item);

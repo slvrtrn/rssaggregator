@@ -2,15 +2,36 @@ button.btn.btn-default.btn-sm.mySubsBtn(ng-click="openSubscriptionsModal()") My 
 button.btn.btn-default.btn-sm.refreshBtn(ng-click="refreshNewsFeed()",ng-disabled="isLoading") Refresh
 span.ajaxLoader(ng-show="isLoading") Loading, please wait ...
 div.container-fluid
-    div(ng-repeat="n in news track by $index", ng-show="!isLoading", ng-if="$even")
-        div(ng-repeat="i in [$index, $index + 1]", ng-if="news[i] != null")
-            div.col-md-5.rssItem
-                div
-                    h4 {{news[i].title}}
+    //div(ng-repeat="n in news track by $index", ng-show="!isLoading", ng-if="$even")
+    //    div(ng-repeat="i in [$index, $index + 1]", ng-if="news[i] != null")
+    //        div.col-md-5.rssItem
+    //            div
+    //                h4 {{news[i].title}}
+    //                p
+    //                    img.rssImg(ng-show="isDefined(news[i].enclosure)", ng-src="{{news[i].enclosure.url}}")
+    //                    | {{news[i].description}}
+    //                    br
+    //                    | {{parsePubDate(news[i].pubDate)}}
+    //                    a.readMore(href="{{news[i].link}}", target="_blank") >>
+    //        div.col-md-offset-1(ng-if="$even")
+    div.row
+        div.col-md-6
+            div.row.rssItem(ng-repeat="n in news", ng-if="$even")
+                div.col-md-12
+                    h4 {{n.title}}
                     p
-                        img.rssImg(ng-show="isDefined(news[i].enclosure)", ng-src="{{news[i].enclosure.url}}")
-                        | {{news[i].description}}
+                        img.rssImg(ng-show="isDefined(n.enclosure)", ng-src="{{n.enclosure.url}}")
+                        | {{n.description}}
                         br
-                        | {{parsePubDate(news[i].pubDate)}}
-                        a.readMore(href="{{news[i].link}}", target="_blank") >>
-            div.col-md-offset-1(ng-if="$even")
+                        | {{parsePubDate(n.pubDate)}}
+                        a.readMore(href="{{n.link}}", target="_blank") >>
+        div.col-md-6
+            div.row.rssItem(ng-repeat="n in news", ng-if="$odd")
+                div.col-md-12
+                    h4 {{n.title}}
+                    p
+                        img.rssImg(ng-show="isDefined(n.enclosure)", ng-src="{{n.enclosure.url}}")
+                        | {{n.description}}
+                        br
+                        | {{parsePubDate(n.pubDate)}}
+                        a.readMore(href="{{n.link}}", target="_blank") >>
