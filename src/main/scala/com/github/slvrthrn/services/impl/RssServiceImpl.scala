@@ -16,7 +16,7 @@ import com.mongodb.casbah.Imports._
 
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success, Try}
-import scala.xml.{NodeSeq, Node, XML, PCData}
+import scala.xml._
 
 /**
  * Created by slvr on 12/17/14.
@@ -35,9 +35,11 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
 
   private val minRefreshInterval = config.getInt("app.default.news.minRefreshInterval")
 
+  private val xmlFetchTimeout = config.getInt("app.default.news.xmlFetchTimeout")
+
   private implicit val executionContext = inject[ExecutionContext]
 
-  def addRssUrl(url: URL, user: User): Future[User] = {
+  def addRssUrl(url: URL, user: User, xml: Elem): Future[User] = {
     val urlStr  = url.toString
     val checkDb = checkRssUrlExitestence(urlStr)
     checkDb flatMap {
@@ -50,12 +52,40 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
             userRepo.save(updatedUser)
         }
       case _ =>
-        val rssUrl = RssUrl(urlStr)
+        val imageLink = (xml \ "channel" \ "image" \ "url").text
+        val imageOpt = if(imageLink.nonEmpty) {
+          Some(imageLink)
+        } else {
+          None
+        }
+        val rssUrl = RssUrl(urlStr, image = imageOpt)
         val updatedUser = user.copy(feed = user.feed + rssUrl._id)
         for {
           _ <- urlRepo.save(rssUrl)
           savedUser <- userRepo.save(updatedUser)
         } yield savedUser
+    }
+  }
+
+  def checkRssUrlSanity(url: URL): Future[Option[Elem]] = {
+    Future {
+      Try {
+        val connection = url.openConnection
+        connection.setConnectTimeout(xmlFetchTimeout)
+        connection.setReadTimeout(xmlFetchTimeout)
+        XML.load(connection.getInputStream)
+      }
+    }.map {
+      case Success(xml) =>
+        val title = (xml \ "channel" \ "title").text
+        val desc = (xml \ "channel" \ "description").text
+        val link = (xml \ "channel" \ "link").text
+        if (title.nonEmpty && desc.nonEmpty && link.nonEmpty) {
+          Some(xml)
+        } else {
+          None
+        }
+      case Failure(e) => None
     }
   }
 
@@ -96,7 +126,12 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
 
   private def loadNews(rssUrl: RssUrl): Future[Seq[RssNews]] = {
     Future {
-      Try(XML.load(rssUrl.url))
+      Try {
+        val connection = new URL(rssUrl.url).openConnection
+        connection.setConnectTimeout(xmlFetchTimeout)
+        connection.setReadTimeout(xmlFetchTimeout)
+        XML.load(connection.getInputStream)
+      }
     }.flatMap {
       case Success(xml) =>
         val freshNews = (xml \\ "item").map(buildNews(_, rssUrl._id)).toSeq
@@ -107,7 +142,6 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
 
   private def saveNewsSeq(freshNews: Seq[RssNews], rssUrl: RssUrl): Future[Seq[RssNews]] = {
     for {
-      //_ <- newsRepo.removeByParent(rssUrl._id)
       oldNews <- newsRepo.findByParent(rssUrl._id, limit = freshNews.size)
       _ <- urlRepo.save(rssUrl.copy(lastUpdate = new DateTime))
       news <- {
@@ -118,13 +152,6 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
   }
 
   private def buildNews(node: Node, id: ObjectId): RssNews = {
-//    val description = node \\ "description"
-//    val image = description \ "img" match {
-//      case img @ <img/> =>
-//        val src = img \ "@src"
-//        Some(RssNewsImage(src.text))
-//      case _ => None
-//    }
     val encNode = node \\ "enclosure"
     val enclosure = encNode match {
       case nodeSeq: NodeSeq if nodeSeq.nonEmpty =>

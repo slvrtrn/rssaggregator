@@ -12,30 +12,7 @@ import scala.concurrent.ExecutionContext
 /**
  * Created by slvr on 12/6/14.
  */
-class CommonConfiguration extends Module {
-
-  def mongoClient(configPath: String): MongoClient = {
-    val config = inject[Config]
-    val mongoUriString = config.getString(configPath)
-    val uri = MongoClientURI(mongoUriString)
-    RegisterJodaTimeConversionHelpers()
-    MongoClient(uri)
-  }
-
-  def mongoDb(configPath: String): MongoDB = {
-    val config = inject[Config]
-    val mongoClient = inject[MongoClient]
-    val dbName = config.getString(configPath)
-    mongoClient(dbName)
-  }
-
-  def redisClient(urlConfigPath: String, portConfigPath: String): RedisClient = {
-    implicit val system = ActorSystem("redis-client")
-    val config = inject[Config]
-    val url = config.getString(urlConfigPath)
-    val port = config.getInt(portConfigPath)
-    RedisClient(url, port)
-  }
+class CommonConfiguration extends Configuration {
 
   bind[MongoClient] to mongoClient("mongodb.default.uri")
   bind[MongoDB] to mongoDb("mongodb.default.db")

@@ -3,6 +3,8 @@ html
   head
     title RssAggregator
     include includes/head
+    script(src='/javascripts/client.js')
+    link(rel="stylesheet", href='/stylesheets/client.css')
   body
     div(ng-app="rssaggregator")
       div(ui-view="layout")

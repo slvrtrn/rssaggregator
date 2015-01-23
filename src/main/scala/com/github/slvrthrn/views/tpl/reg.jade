@@ -1,0 +1,19 @@
+!!! 5
+html
+    head
+        title Registration
+        include includes/head
+        link(rel="stylesheet", href='/stylesheets/auth.css')
+    body
+        div.container.theme-showcase(role="main")
+            div.jumbotron
+                div.title
+                    h3 Registration
+                form(name="regForm", method="post", action="/reg")
+                    input.form-control(type="text", name="login", placeholder="Preferred username")
+                    input.form-control(type="password", name="password", placeholder="Password")
+                    div.submitButtonContainer
+                        button.btn.btn-default(type="submit") Register
+                        a.btn.btn-default(href="/login") I have an account
+                if error
+                    div.alert.alert-danger(role="alert") #{error}

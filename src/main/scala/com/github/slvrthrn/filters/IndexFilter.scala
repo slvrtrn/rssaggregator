@@ -21,7 +21,7 @@ class IndexFilter(implicit val inj: Injector)
 
   def apply(request: FinagleRequest, service: Service[FinagleRequest, FinagleResponse]): Future[FinagleResponse] = {
     request.uri match {
-      case "/reg" | "/login" | "/auth" => processAuthRequest(request, service)
+      case "/reg" | "/login" => processAuthRequest(request, service)
       case uri: String if uri.startsWith("/app/") => redirectToIndex(request, service)
       case uri: String if uri.contains("/api/v1/") | uri == "/" => processUserRequest(request, service)
       case _ => service(request)
@@ -52,12 +52,12 @@ class IndexFilter(implicit val inj: Injector)
             expired.maxAge = Duration(-42, TimeUnit.DAYS)
             Future value new ResponseBuilder()
               .plain("Redirecting to auth").status(HttpResponseStatus.FOUND.getCode)
-              .header("Location", "/auth").cookie(expired).build
+              .header("Location", "/login").cookie(expired).build
         }
       case _ =>
         Future value new ResponseBuilder()
           .plain("Redirecting to auth").status(HttpResponseStatus.FOUND.getCode)
-          .header("Location", "/auth").build
+          .header("Location", "/login").build
     }
   }
 

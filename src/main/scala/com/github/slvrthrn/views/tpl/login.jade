@@ -1,0 +1,19 @@
+!!! 5
+html
+    head
+        title Login
+        include includes/head
+        link(rel="stylesheet", href='/stylesheets/auth.css')
+    body
+        div.container.theme-showcase(role="main")
+            div.jumbotron
+                div.title
+                    h3 Login
+                form(name="loginForm", method="post", action="/login")
+                    input.form-control(type="text", name="login", placeholder="Username")
+                    input.form-control(type="password", name="password", placeholder="Password")
+                    div.submitButtonContainer
+                        button.btn.btn-default(type="submit") Login
+                        a.btn.btn-default(href="/reg") I want to register
+                if error
+                    div.alert.alert-danger(role="alert") #{error}

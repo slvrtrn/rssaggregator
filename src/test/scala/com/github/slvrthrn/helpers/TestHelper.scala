@@ -23,13 +23,14 @@ import scala.concurrent.{Future => ScalaFuture}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.xml.XML
 
 /**
  * Created by slvr on 1/8/15.
  */
 class TestHelper extends InjectHelper {
 
-  implicit val inj = BindingsProvider.getBindings
+  implicit val inj = BindingsProvider.getTestBindings
   implicit val redisTimeout = Timeout(Duration(5, TimeUnit.SECONDS))
   val awaitTimeout = Duration.Inf
   val rssService = inject[RssService]
@@ -59,7 +60,8 @@ class TestHelper extends InjectHelper {
 
   def insertRssUrl(rssUrl: String, user: User): User = {
     val url = new URL(rssUrl: String)
-    val futureAdd = rssService.addRssUrl(url, user).asScala
+    val xml = XML.load(url)
+    val futureAdd = rssService.addRssUrl(url, user, xml).asScala
     Await.result(futureAdd, awaitTimeout)
   }
 

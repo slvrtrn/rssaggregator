@@ -1,7 +1,7 @@
 package com.github.slvrthrn.tests.integration
 
 import com.github.slvrthrn.config.BindingsProvider
-import com.github.slvrthrn.controllers.RssController
+import com.github.slvrthrn.controllers.{ErrorPayload, RssController}
 import com.github.slvrthrn.filters.IndexFilter
 import com.github.slvrthrn.helpers.TestHelper
 import com.github.slvrthrn.models.dto.RssUrlDto
@@ -68,6 +68,22 @@ class RssControllerTest extends IntegrationTest {
     val updatedUser = helper.getUser(randomRegLogin, randomRegPwd)
     delete(s"/api/v1/urls/${updatedUser.feed.head.toString}")
     response.status should equal (HttpResponseStatus.OK)
+  }
+
+  it should "response with 400 bad request because URL is malformed" in {
+    val json = write(RssUrlDto("randomsitename.ru/rss"))
+    postJson("/api/v1/urls", json)
+    val result = parseJson[Seq[ErrorPayload]](response.body)
+    response.status should equal (HttpResponseStatus.BAD_REQUEST)
+    result.head.userMessage should equal ("Invalid URL format")
+  }
+
+  it should "response with 400 bad request because URL is not valid RSS source" in {
+    val json = write(RssUrlDto("http://google.ru/"))
+    postJson("/api/v1/urls", json)
+    val result = parseJson[Seq[ErrorPayload]](response.body)
+    response.status should equal (HttpResponseStatus.BAD_REQUEST)
+    result.head.userMessage should equal ("Submitted URL doesn't seem to be valid RSS source")
   }
 
   it should "response with 404 not found" in {

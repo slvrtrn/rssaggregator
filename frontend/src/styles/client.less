@@ -7,8 +7,11 @@
     -webkit-box-shadow: 0 0 2px grey;
     box-shadow: 0 0 2px grey;
 }
+.rssNewsContainer {
+
+}
 .mySubsBtn {
-    margin-left: 14px;
+    margin-left: 2px;
 }
 .feedTitle {
     padding-left: 30px
@@ -16,6 +19,10 @@
 .rss {
     &Link {
         text-align: left;
+    }
+    &Title {
+        font-weight: bold;
+        padding-top: 6px;
     }
     &Img {
         clear: left;
@@ -26,14 +33,26 @@
         font-size: small;
         text-align: center;
         font-weight: bold;
+        max-height: 100px;
+    }
+    &Desc {
+        padding-top: 6px;
+        font-size: 0.9em;
+        overflow: hidden;
+        text-overflow: clip;
     }
     &Item {
         position:relative;
-        text-align: justify;
-        margin: 12px 0 0 0;
-        -moz-box-shadow: 0 0 2px #c3c3c3;
-        -webkit-box-shadow: 0 0 2px #c3c3c3;
-        box-shadow: 0 0 2px #c3c3c3;
+        padding: 3px;
+//        text-align: justify;
+        &Inner {
+            padding: 8px;
+            -moz-box-shadow: 0 0 2px #c3c3c3;
+            -webkit-box-shadow: 0 0 2px #c3c3c3;
+            box-shadow: 0 0 2px #c3c3c3;
+            min-height: 200px;
+            max-height: 200px;
+        }
     }
 }
 .clickable {

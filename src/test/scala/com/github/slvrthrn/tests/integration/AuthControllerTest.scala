@@ -39,11 +39,18 @@ class AuthControllerTest extends IntegrationTest {
     register(new AuthController)
   }
 
-  it should "show login and registration page" in {
-    get("/auth")
-    response.body should include("RssAggregator auth module")
-    response.body should include ("<input class=\"form-control\" name=\"login\" type=\"text\">")
-    response.body should include ("<input class=\"form-control\" name=\"password\" type=\"password\">")
+  it should "show login page" in {
+    get("/login")
+    response.body should include("Login")
+    response.body should include ("<input class=\"form-control\" placeholder=\"Username\" name=\"login\" type=\"text\">")
+    response.body should include ("<input class=\"form-control\" placeholder=\"Password\" name=\"password\" type=\"password\">")
+  }
+
+  it should "show reg page" in {
+    get("/reg")
+    response.body should include("Registration")
+    response.body should include ("<input class=\"form-control\" placeholder=\"Preferred username\" name=\"login\" type=\"text\">")
+    response.body should include ("<input class=\"form-control\" placeholder=\"Password\" name=\"password\" type=\"password\">")
   }
 
   it should "register new user successfully via POST JSON request and redirect to index" in {

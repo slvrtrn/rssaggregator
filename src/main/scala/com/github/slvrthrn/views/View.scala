@@ -11,7 +11,7 @@ trait View {
 
   protected val model = scala.collection.mutable.Map[String, AnyRef]()
 
-  def renderHtml: String
+  def renderHtml(templateName: String): String
 
   def addToModel(key: String, entity: AnyRef): Unit = model += key -> entity
 

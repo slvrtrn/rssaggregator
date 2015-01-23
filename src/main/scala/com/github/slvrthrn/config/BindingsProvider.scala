@@ -7,4 +7,5 @@ import scaldi.MutableInjectorAggregation
  */
 object BindingsProvider {
   def getBindings: MutableInjectorAggregation = new CommonConfiguration :: new Repositories :: new Services :: new Cache
+  def getTestBindings: MutableInjectorAggregation = new TestConfiguration :: new Repositories :: new Services :: new Cache
 }

@@ -10,6 +10,7 @@ case class RssUrl(
 
                    url: String,
                    lastUpdate: DateTime = DateTime.now.minusSeconds(61),
+                   image: Option[String] = None,
                    _id: ObjectId = new ObjectId
 
                    ) extends MongoEntity

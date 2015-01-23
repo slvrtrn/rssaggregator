@@ -32,9 +32,16 @@ class AuthController(implicit val inj: Injector) extends Controller {
     }
   }
 
-  get("/auth") { request =>
-    val authView = new AuthView
-    render.html(authView.renderHtml).toFuture
+  get("/login") { request =>
+    val view = new AuthView
+    val html = view.renderHtml(view.LOGIN_TEMPLATE_NAME)
+    render.html(html).toFuture
+  }
+
+  get("/reg") { request =>
+    val view = new AuthView
+    val html = view.renderHtml(view.REG_TEMPLATE_NAME)
+    render.html(html).toFuture
   }
 
   get("/logout") { request =>
@@ -62,19 +69,31 @@ class AuthController(implicit val inj: Injector) extends Controller {
               case Some(sid: String) =>
                 val cookie = createCookie("sid", sid)
                 redirect("/", "Login is OK and session is created").cookie(cookie).toFuture
-              case _ => sessionCreationError
+              case _ =>
+                val view = new AuthView
+                view.addToModel("error", "Couldn't create session due to internal server error, please try again later")
+                val html = view.renderHtml(view.LOGIN_TEMPLATE_NAME)
+                render.html(html).toFuture
             }
           case _ =>
-            val errors = Seq(ErrorPayload(
-              "Invalid login or password",
-              "User service login check failed"))
-            renderJsonError(errors, HttpResponseStatus.FORBIDDEN)
+            val view = new AuthView
+            view.addToModel("error", "Invalid login or password")
+            val html = view.renderHtml(view.LOGIN_TEMPLATE_NAME)
+            render.html(html).toFuture
+//            val errors = Seq(ErrorPayload(
+//              "Invalid login or password",
+//              "User service login check failed"))
+//            renderJsonError(errors, HttpResponseStatus.FORBIDDEN)
         }
       case _ =>
-        val errors = Seq(ErrorPayload(
-          "Error with form validation: maybe there are empty fields?",
-          "LoginForm validation failed"))
-        renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
+        val view = new AuthView
+        view.addToModel("error", "Error with form validation: maybe there are empty fields?")
+        val html = view.renderHtml(view.LOGIN_TEMPLATE_NAME)
+        render.html(html).toFuture
+//        val errors = Seq(ErrorPayload(
+//          "Error with form validation: maybe there are empty fields?",
+//          "LoginForm validation failed"))
+//        renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
     }
   }
 
@@ -88,27 +107,32 @@ class AuthController(implicit val inj: Injector) extends Controller {
               case Some(sid: String) =>
                 val cookie = createCookie("sid", sid)
                 redirect("/", "User creation: success").cookie(cookie).toFuture
-              case _ => sessionCreationError
+              case _ =>
+                val view = new AuthView
+                view.addToModel("error", "Couldn't create session due to internal server error, please try again later")
+                val html = view.renderHtml(view.REG_TEMPLATE_NAME)
+                render.html(html).toFuture
             }
           case _ =>
-            val errors = Seq(ErrorPayload(
-              "Couldn't create new user, maybe there is registered user with same name?",
-              "User service failed to create new user"))
-            renderJsonError(errors, HttpResponseStatus.CONFLICT)
+            val view = new AuthView
+            view.addToModel("error", "Couldn't create new user, maybe there is registered user with same name?")
+            val html = view.renderHtml(view.REG_TEMPLATE_NAME)
+            render.html(html).toFuture
+//            val errors = Seq(ErrorPayload(
+//              "Couldn't create new user, maybe there is registered user with same name?",
+//              "User service failed to create new user"))
+//            renderJsonError(errors, HttpResponseStatus.CONFLICT)
         }
       case _ =>
-        val errors = Seq(ErrorPayload(
-          "Error with form validation: maybe there are empty fields?",
-          "RegForm validation failed"))
-        renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
+        val view = new AuthView
+        view.addToModel("error", "Error with form validation: maybe there are empty fields?")
+        val html = view.renderHtml(view.REG_TEMPLATE_NAME)
+        render.html(html).toFuture
+//        val errors = Seq(ErrorPayload(
+//          "Error with form validation: maybe there are empty fields?",
+//          "RegForm validation failed"))
+//        renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
     }
-  }
-
-  private def sessionCreationError: Future[ResponseBuilder] = {
-    val errors = Seq(ErrorPayload(
-      "Couldn't create session",
-      "Session service failed to create session"))
-    renderJsonError(errors, HttpResponseStatus.INTERNAL_SERVER_ERROR)
   }
 }
 

@@ -14,7 +14,7 @@ import scaldi.Injector
 trait IntegrationTest extends FlatSpecHelper with BeforeAndAfterAll with Matchers {
 
   implicit val formats = DefaultFormats + DateTimeSerializer
-  implicit val inj: Injector = BindingsProvider.getBindings
+  implicit val inj: Injector = BindingsProvider.getTestBindings
 
   def parseJson[T](jsonString: String)(implicit m: Manifest[T]): T = {
     try {

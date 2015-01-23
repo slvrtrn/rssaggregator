@@ -8,13 +8,17 @@
   box-shadow: 0 0 2px grey;
 }
 .mySubsBtn {
-  margin-left: 14px;
+  margin-left: 2px;
 }
 .feedTitle {
   padding-left: 30px;
 }
 .rssLink {
   text-align: left;
+}
+.rssTitle {
+  font-weight: bold;
+  padding-top: 6px;
 }
 .rssImg {
   clear: left;
@@ -25,14 +29,25 @@
   font-size: small;
   text-align: center;
   font-weight: bold;
+  max-height: 100px;
+}
+.rssDesc {
+  padding-top: 6px;
+  font-size: 0.9em;
+  overflow: hidden;
+  text-overflow: clip;
 }
 .rssItem {
   position: relative;
-  text-align: justify;
-  margin: 12px 0 0 0;
+  padding: 3px;
+}
+.rssItemInner {
+  padding: 8px;
   -moz-box-shadow: 0 0 2px #c3c3c3;
   -webkit-box-shadow: 0 0 2px #c3c3c3;
   box-shadow: 0 0 2px #c3c3c3;
+  min-height: 200px;
+  max-height: 200px;
 }
 .clickable:hover {
   cursor: pointer;

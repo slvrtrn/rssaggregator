@@ -10,6 +10,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import scaldi.Injector
 
 import scala.util.{Failure, Success, Try}
+import scala.xml.Elem
 
 /**
  * Created by slvr on 12/25/14.
@@ -36,19 +37,29 @@ class RssController(implicit val inj: Injector) extends Controller {
         case Some(dto: RssUrlDto) =>
           Try(new URL(dto.url)) match {
             case Success(url: URL) =>
-              val result = rssService.addRssUrl(url, user)
-              result flatMap {
-                updatedUser: User =>
-                  if(updatedUser.feed equals user.feed) {
-                    val errors = Seq(ErrorPayload(
-                      "Specified URL is already in your RSS subscriptions list",
-                      "Duplicate RSS URL"
-                    ))
-                    renderJsonError(errors, HttpResponseStatus.CONFLICT)
-                  } else {
-                    val feed = rssService.findRssUrlsByUser(updatedUser)
-                    feed flatMap renderJson[Seq[RssUrl]]
+              val check = rssService.checkRssUrlSanity(url)
+              check flatMap {
+                case Some(xml: Elem) =>
+                  val result = rssService.addRssUrl(url, user,  xml)
+                  result flatMap {
+                    updatedUser: User =>
+                      if(updatedUser.feed equals user.feed) {
+                        val errors = Seq(ErrorPayload(
+                          "Specified URL is already in your RSS subscriptions list",
+                          "Duplicate RSS URL"
+                        ))
+                        renderJsonError(errors, HttpResponseStatus.CONFLICT)
+                      } else {
+                        val feed = rssService.findRssUrlsByUser(updatedUser)
+                        feed flatMap renderJson[Seq[RssUrl]]
+                      }
                   }
+                case _ =>
+                  val errors = Seq(ErrorPayload(
+                    "Submitted URL doesn't seem to be valid RSS source",
+                    "Cannot parse URL from JSON"
+                  ))
+                  renderJsonError(errors, HttpResponseStatus.BAD_REQUEST)
               }
             case Failure(e) => renderInvalidUrlFormat
           }

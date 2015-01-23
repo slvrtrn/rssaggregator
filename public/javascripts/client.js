@@ -166,12 +166,15 @@ angular.module('rssaggregator', [
         });
         RestangularProvider.setBaseUrl('/api/v1');
         $locationProvider.html5Mode(true);
-        $urlRouterProvider.when('/','/app/news/').otherwise('/app/news');
+        $urlRouterProvider
+            .when('/','/app/news/')
+            .when('/logout', '/logout')
+            .otherwise('/app/news');
     }
 ]).run(['$rootScope', 'Restangular',
     function ($rootScope, Restangular) {
         $rootScope.parsePubDate = function(isoDate) {
-            return moment(isoDate).format("Do MMMM YYYY, HH:mm")
+            return moment(isoDate).format("HH:mm, Do MMMM YYYY")
         };
         Restangular.one("whoami").get().then(function(user) {
             $rootScope.currentUser = user;
