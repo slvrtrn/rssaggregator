@@ -1,6 +1,8 @@
 div.modal-header.modalRssTitle {{item.title}}
+div.modal-body.modalRssImg
+    img(ng-show="utils.isDefined(item.enclosure)", ng-src="{{item.enclosure.url}}")
 div.modal-body.modalRssDesc {{item.description}}
-div.modal-body {{utils.formatDate(item.pubDate)}}
-        a.readMore(href="{{item.link}}", target="_blank") >>
+    a.readMore(href="{{item.link}}", target="_blank") >>>
+div.modal-body Posted at {{utils.formatDate(item.pubDate)}}
 div.modal-footer
     button.btn.btn-default(ng-click="$close()") Close

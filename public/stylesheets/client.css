@@ -43,17 +43,19 @@
   overflow: hidden;
   text-overflow: clip;
 }
+.rssDesc:hover {
+  cursor: pointer;
+}
 .rssItem {
   position: relative;
-  padding: 3px;
+  padding: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rssItemInner {
-  padding: 8px;
-  -moz-box-shadow: 0 0 2px #c3c3c3;
-  -webkit-box-shadow: 0 0 2px #c3c3c3;
-  box-shadow: 0 0 2px #c3c3c3;
-  min-height: 200px;
-  max-height: 200px;
+  padding: 10px;
+  min-height: 240px;
+  max-height: 240px;
 }
 .clickable:hover {
   cursor: pointer;
@@ -69,6 +71,9 @@
 }
 .modalRssTitle {
   font-weight: bold;
+}
+.modalRssImg {
+  text-align: center;
 }
 .addRssInput {
   width: 500px;

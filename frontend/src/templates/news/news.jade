@@ -9,9 +9,8 @@ div.container-fluid.rssNewsContainer
         div.col-lg-3.rssItem(ng-repeat="n in news")
             div.rssItemInner
                 span.rssTitle {{n.title}}
-                p.rssDesc
+                p.rssDesc(ng-click="openNewsItemModal($index)")
                     img.rssImg(ng-show="utils.isDefined(n.enclosure)", ng-src="{{n.enclosure.url}}")
                     | {{n.description}}
-                    br
-                    | {{utils.formatDate(n.pubDate)}}
-                    a.readMore(href="{{n.link}}", target="_blank") >>
+                | {{utils.formatDate(n.pubDate)}}
+                a.readMore(href="{{n.link}}", target="_blank") >>>

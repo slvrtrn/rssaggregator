@@ -46,17 +46,23 @@
         font-size: 0.9em;
         overflow: hidden;
         text-overflow: clip;
+        &:hover{
+            cursor: pointer;
+        }
     }
     &Item {
         position:relative;
-        padding: 3px;
+        padding: 0;
+//        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         &Inner {
-            padding: 8px;
-            -moz-box-shadow: 0 0 2px #c3c3c3;
-            -webkit-box-shadow: 0 0 2px #c3c3c3;
-            box-shadow: 0 0 2px #c3c3c3;
-            min-height: 200px;
-            max-height: 200px;
+            padding: 10px;
+//            -moz-box-shadow: 0 0 2px #c3c3c3;
+//            -webkit-box-shadow: 0 0 2px #c3c3c3;
+//            box-shadow: 0 0 2px #c3c3c3;
+            min-height: 240px;
+            max-height: 240px;
         }
     }
 }
@@ -79,6 +85,9 @@
         font-weight: bold;
     }
     &Desc {
+    }
+    &Img {
+        text-align: center;
     }
 }
 .addRss {
