@@ -95,3 +95,12 @@
   color: #858585;
   margin-left: 24px;
 }
+.redirect {
+  margin: 0;
+  padding: 0;
+}
+.redirectBtn {
+  display: inline-block;
+  margin-top: 14px;
+  float: right;
+}

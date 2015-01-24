@@ -2,6 +2,7 @@ nav.navbar.navbar-default
     div.container-fluid
         div.navbar-header
             a.navbar-brand RssAggregator
-            p.navbar-text Logged in as {{currentUser.login}}
-            a.navbar-text(href="/logout") logout
+        form.redirect(method="get", action="/logout")
+            span.navbar-text Logged in as {{currentUser.login}}
+            button.redirectBtn.btn.btn-default.btn-xs(type="submit") Logout
 div(ui-view="news")
