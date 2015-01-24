@@ -13,6 +13,12 @@
 .feedTitle {
   padding-left: 30px;
 }
+.rssUrlSelect {
+  display: inline;
+  width: 320px;
+  height: 33px;
+  margin-left: 6px;
+}
 .rssLink {
   text-align: left;
 }

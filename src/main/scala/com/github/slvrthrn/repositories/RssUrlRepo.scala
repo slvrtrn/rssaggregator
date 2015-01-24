@@ -18,6 +18,6 @@ trait RssUrlRepo extends MongoDaoRepository[RssUrl] { self: InjectHelper =>
 
   def findByUrl(url: String): Future[Option[RssUrl]]
 
-  def findByUser(user: User): Future[Seq[RssUrl]]
+  def findByFeed(feed: Set[ObjectId]): Future[Seq[RssUrl]]
 
 }

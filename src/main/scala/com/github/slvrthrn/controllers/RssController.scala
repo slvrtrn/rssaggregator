@@ -3,8 +3,9 @@ package com.github.slvrthrn.controllers
 import java.net.URL
 
 import com.github.slvrthrn.models.dto.RssUrlDto
-import com.github.slvrthrn.models.entities.{User, RssUrl}
+import com.github.slvrthrn.models.entities.{RssNews, User, RssUrl}
 import com.github.slvrthrn.services.{UserService, RssService}
+import com.typesafe.config.Config
 import org.bson.types.ObjectId
 import org.jboss.netty.handler.codec.http.HttpResponseStatus
 import scaldi.Injector
@@ -18,12 +19,11 @@ import scala.xml.Elem
 class RssController(implicit val inj: Injector) extends Controller {
 
   val rssService = inject[RssService]
-
   val userService = inject[UserService]
 
   get("/api/v1/urls") { implicit request =>
     withUserContext { user =>
-      val result = rssService.findRssUrlsByUser(user)
+      val result = rssService.findRssUrlsByUser(user.feed)
       result flatMap {
         case seq: Seq[RssUrl] => renderJsonArray(seq)
       }
@@ -50,7 +50,7 @@ class RssController(implicit val inj: Injector) extends Controller {
                         ))
                         renderJsonError(errors, HttpResponseStatus.CONFLICT)
                       } else {
-                        val feed = rssService.findRssUrlsByUser(updatedUser)
+                        val feed = rssService.findRssUrlsByUser(updatedUser.feed)
                         feed flatMap renderJson[Seq[RssUrl]]
                       }
                   }

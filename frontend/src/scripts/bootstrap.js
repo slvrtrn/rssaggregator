@@ -4,7 +4,6 @@ var myApp = angular.module('rssaggregator', [
     'ui.bootstrap',
     'ui.select',
     'infinite-scroll',
-    'app-auth',
     'app-news'
 ]).config([
     '$provide',

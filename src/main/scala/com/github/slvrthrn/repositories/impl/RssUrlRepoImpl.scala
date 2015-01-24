@@ -14,6 +14,6 @@ class RssUrlRepoImpl(implicit val inj: Injector) extends RssUrlRepo with InjectH
 
   def findByUrl(url: String): Future[Option[RssUrl]] = findOne("url" $eq url)
 
-  def findByUser(user: User): Future[Seq[RssUrl]] = find("_id" $in user.feed)
+  def findByFeed(feed: Set[ObjectId]): Future[Seq[RssUrl]] = find("_id" $in feed)
 
 }

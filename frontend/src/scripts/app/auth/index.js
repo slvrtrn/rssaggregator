@@ -1,1 +1,0 @@
-angular.module('app-auth', ['ui.router', 'restangular', 'ui.bootstrap', 'ui.select']);

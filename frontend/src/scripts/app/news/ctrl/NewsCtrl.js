@@ -3,14 +3,22 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
     function($rootScope, $scope, news, Restangular, $modal, $timeout, Utils, Broadcast) {
 
         $scope.refreshNewsFeed = function() {
-            $scope.isLoading = true;
-            Restangular.all('news').getList().then(function(news) {
-                $scope.news = news;
-                $scope.isLoading = false;
-            });
+            if($scope.selectedRssId == "all") {
+                Restangular.all('news').getList().then(function (news) {
+                    $scope.news = news;
+                    $scope.isLoading = false;
+                });
+            } else {
+                $scope.isLoading = true;
+                Restangular.one('urls', $scope.selectedRssId).getList("news").then(function (news) {
+                    $scope.news = news;
+                    $scope.isLoading = false;
+                });
+            }
         };
 
-        $scope.$on("refreshNews", function() {
+        $scope.$on("refreshNewsFromModal", function() {
+            $scope.selectedRssId = "all";
             $scope.refreshNewsFeed();
         });
 
@@ -34,7 +42,7 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
         $scope.openSubscriptionsModal = function () {
             var modalInstance = $modal.open({
                 templateUrl: '/templates/news/modal/subscriptions.html',
-                controller: function ($scope, $modalInstance, Restangular, Broadcast) {
+                controller: function ($rootScope, $scope, $modalInstance, Restangular, Broadcast) {
                     $scope.error = false;
                     $scope.errorMsg = "";
                     $scope.rssUrl = "";
@@ -47,7 +55,8 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
                             function(res) {
                                 $scope.feed = Restangular.restangularizeCollection(null, res, "urls");
                                 $scope.rssUrl = "";
-                                $rootScope.$broadcast("refreshNews");
+                                $rootScope.currentUser.feed = $scope.feed;
+                                Broadcast.broadcast("refreshNewsFromModal");
                             },
                             function(failure) {
                                 var msg = failure.data[0].userMessage
@@ -65,7 +74,8 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
                             var index = $scope.feed.indexOf(item);
                             if (index > -1) $scope.feed.splice(index, 1);
                             $scope.rssUrl = "";
-                            $rootScope.$broadcast("refreshNews");
+                            $rootScope.currentUser.feed = $scope.feed;
+                            Broadcast.broadcast("refreshNewsFromModal");
                         });
                     };
                     $scope.closeAlert = function(i) {
@@ -75,22 +85,36 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
                         $modalInstance.close();
                     }
                 },
+                resolve: {
+                    "Broadcast": function() {
+                        return $scope.broadcast;
+                    }
+                },
                 size: 'xs',
                 backdrop: true
             });
         };
 
         $scope.nextPage = function() {
-            var id = $scope.news[news.length - 1]._id.$oid;
-            $scope.news.one("start", id).getList().then(function(news) {
-                Array.prototype.push.apply($scope.news, news)
-            });
+            var length = $scope.news.length;
+            if(length > 0) {
+                var id = $scope.news[$scope.news.length - 1]._id.$oid;
+                if ($scope.selectedRssId == "all") {
+                    $scope.news.getList({"start": id}).then(function(news) {
+                        Array.prototype.push.apply($scope.news, news)
+                    });
+                } else {
+                    Restangular.one("urls", $scope.selectedRssId).getList("news", {"start": id}).then(function(news) {
+                        Array.prototype.push.apply($scope.news, news)
+                    });
+                }
+            }
         };
 
         $scope.isRefreshing = false;
         $scope.isLoading = false;
         $scope.news = news;
-        //$scope.autoRefresh = false;
         $scope.utils = new Utils();
         $scope.broadcast = new Broadcast();
+        $scope.selectedRssId = "all";
 }]);

@@ -1,5 +1,8 @@
 button.btn.btn-default.btn-sm.mySubsBtn(ng-click="openSubscriptionsModal()") My subscriptions
 button.btn.btn-default.btn-sm.refreshBtn(ng-click="refreshNewsFeed()",ng-disabled="isLoading") Refresh
+select.form-control.rssUrlSelect(ng-model="selectedRssId", ng-change="refreshNewsFeed()")
+    option(value="all") View all
+    option(ng-repeat="f in currentUser.feed", value="{{f._id.$oid}}") {{f.url}}
 span.ajaxLoader(ng-show="isRefreshing") Loading, please wait ...
 div.container-fluid.rssNewsContainer
     div.row(infinite-scroll='nextPage()', infinite-scroll-disabled='isLoading', infinite-scroll-distance='0')

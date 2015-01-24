@@ -1,1 +1,0 @@
-angular.module('app-auth').controller('AuthCtrl', ['$scope', function($scope) {}]);
