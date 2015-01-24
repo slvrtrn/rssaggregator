@@ -120,7 +120,7 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
     } yield news
   }
 
-  def getNewsWithRange(feed: Set[ObjectId], startFrom: types.ObjectId, limit: Int): Future[Seq[RssNews]] = {
+  def getNewsWithRange(feed: Set[ObjectId], startFrom: ObjectId, limit: Int): Future[Seq[RssNews]] = {
     newsRepo.findAllWithRange("parent" $in feed, startFrom, limit)
   }
 
@@ -160,12 +160,14 @@ class RssServiceImpl (implicit val inj: Injector) extends RssService with Inject
         Some(RssNewsEnclosure(url, mime))
       case _ => None
     }
+    val pubDate = formatter.parseDateTime((node \\ "pubDate").text)
     new RssNews(title = (node \\ "title").text,
       link = (node \\ "link").text,
       description = (node \\ "description").text,
-      pubDate = formatter.parseDateTime((node \\ "pubDate").text),
+      pubDate = pubDate,
       enclosure = enclosure,
-      parent = id
+      parent = id,
+      _id = new ObjectId(pubDate.toDate)
     )
   }
 

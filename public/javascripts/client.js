@@ -1,4 +1,3 @@
-angular.module('app-auth', ['ui.router', 'restangular', 'ui.bootstrap', 'ui.select']);
 angular.module('app-news', ['ui.router', 'restangular', 'ui.bootstrap', 'ui.select'])
     .config(['$stateProvider', function ($stateProvider) {
     'use strict';
@@ -29,33 +28,16 @@ angular.module('app-news', ['ui.router', 'restangular', 'ui.bootstrap', 'ui.sele
         });
 }]);
 
-angular.module('app-auth').controller('AuthCtrl', ['$scope', function($scope) {}]);
-angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news', 'Restangular', '$modal', '$timeout',
-    function($rootScope, $scope, news, Restangular, $modal, $timeout) {
-
-        //$scope.startTimeout = function() {
-        //    //console.log("Setting up refresh news timeout at " + moment().format("HH:mm:ss"));
-        //    $scope.timeout = $timeout(function() {
-        //        //console.log("Refreshing news at " + moment().format("HH:mm:ss"));
-        //        $rootScope.$broadcast("refreshNews");
-        //    }, 3000);
-        //};
-        //
-        //$scope.stopTimeout = function() {
-        //    $timeout.cancel($scope.timeout);
-        //};
-        //
-        //$scope.toggleTimeout = function() {
-        //    $scope.autoRefresh === true ? $scope.startTimeout() : $scope.stopTimeout();
-        //};
+angular.module('app-auth', ['ui.router', 'restangular', 'ui.bootstrap', 'ui.select']);
+angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news', 'Restangular',
+    '$modal', '$timeout', 'Utils', 'Broadcast',
+    function($rootScope, $scope, news, Restangular, $modal, $timeout, Utils, Broadcast) {
 
         $scope.refreshNewsFeed = function() {
-            //$rootScope.$broadcast("stopTimeout");
             $scope.isLoading = true;
-            var n = Restangular.all('news').getList().then(function(news) {
+            Restangular.all('news').getList().then(function(news) {
                 $scope.news = news;
                 $scope.isLoading = false;
-                //$rootScope.$broadcast("startTimeout");
             });
         };
 
@@ -63,19 +45,11 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
             $scope.refreshNewsFeed();
         });
 
-        //$scope.$on("startTimeout", function() {
-        //    if($scope.autoRefresh === true) $scope.startTimeout();
-        //});
-        //
-        //$scope.$on("stopTimeout", function() {
-        //    //console.log("Stopping refresh news timeout at " + moment().format("HH:mm:ss"));
-        //    if($scope.autoRefresh === true) $scope.stopTimeout();
-        //});
-
         $scope.openNewsItemModal = function (i) {
             var modalInstance = $modal.open({
                 templateUrl: '/templates/news/modal/newsItem.html',
-                controller: function ($scope, $modalInstance, item) {
+                controller: function ($scope, $modalInstance, item, Utils) {
+                    $scope.utils = new Utils();
                     $scope.item = item;
                 },
                 size: 'xs',
@@ -91,8 +65,7 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
         $scope.openSubscriptionsModal = function () {
             var modalInstance = $modal.open({
                 templateUrl: '/templates/news/modal/subscriptions.html',
-                controller: function ($scope, $rootScope, $modalInstance, Restangular) {
-                    //$rootScope.$broadcast("stopTimeout");
+                controller: function ($scope, $modalInstance, Restangular, Broadcast) {
                     $scope.error = false;
                     $scope.errorMsg = "";
                     $scope.rssUrl = "";
@@ -130,7 +103,6 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
                         $scope.alert  = {show: false};
                     };
                     $scope.close = function() {
-                        //$rootScope.$broadcast("startTimeout");
                         $modalInstance.close();
                     }
                 },
@@ -139,19 +111,27 @@ angular.module('app-news').controller('NewsCtrl', ['$rootScope', '$scope', 'news
             });
         };
 
-        $scope.isDefined = function(obj) {
-            return (typeof obj != "undefined");
+        $scope.nextPage = function() {
+            var id = $scope.news[news.length - 1]._id.$oid;
+            $scope.news.one("start", id).getList().then(function(news) {
+                Array.prototype.push.apply($scope.news, news)
+            });
         };
 
+        $scope.isRefreshing = false;
         $scope.isLoading = false;
         $scope.news = news;
         //$scope.autoRefresh = false;
+        $scope.utils = new Utils();
+        $scope.broadcast = new Broadcast();
 }]);
-angular.module('rssaggregator', [
+angular.module('app-auth').controller('AuthCtrl', ['$scope', function($scope) {}]);
+var myApp = angular.module('rssaggregator', [
     'ui.router',
     'restangular',
     'ui.bootstrap',
     'ui.select',
+    'infinite-scroll',
     'app-auth',
     'app-news'
 ]).config([
@@ -168,15 +148,28 @@ angular.module('rssaggregator', [
         $locationProvider.html5Mode(true);
         $urlRouterProvider
             .when('/','/app/news/')
-            .when('/logout', '/logout')
             .otherwise('/app/news');
     }
 ]).run(['$rootScope', 'Restangular',
     function ($rootScope, Restangular) {
-        $rootScope.parsePubDate = function(isoDate) {
-            return moment(isoDate).format("HH:mm, Do MMMM YYYY")
-        };
         Restangular.one("whoami").get().then(function(user) {
             $rootScope.currentUser = user;
         });
     }]);
+myApp.factory('Utils', function() {
+   var Utils = function() {};
+    Utils.prototype.formatDate = function(isoDate) {
+        return moment(isoDate).format("HH:mm, Do MMMM YYYY")
+    };
+    Utils.prototype.isDefined = function(obj) {
+        return (typeof obj != "undefined");
+    };
+    return Utils;
+});
+myApp.factory('Broadcast', ['$rootScope', function($rootScope) {
+    var Broadcast = function() {};
+    Broadcast.prototype.broadcast = function(msg) {
+        $rootScope.$broadcast(msg);
+    };
+    return Broadcast;
+}]);

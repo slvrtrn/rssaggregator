@@ -1,14 +1,14 @@
 button.btn.btn-default.btn-sm.mySubsBtn(ng-click="openSubscriptionsModal()") My subscriptions
 button.btn.btn-default.btn-sm.refreshBtn(ng-click="refreshNewsFeed()",ng-disabled="isLoading") Refresh
-span.ajaxLoader(ng-show="isLoading") Loading, please wait ...
+span.ajaxLoader(ng-show="isRefreshing") Loading, please wait ...
 div.container-fluid.rssNewsContainer
-    div.row
+    div.row(infinite-scroll='nextPage()', infinite-scroll-disabled='isLoading', infinite-scroll-distance='0')
         div.col-lg-3.rssItem(ng-repeat="n in news")
             div.rssItemInner
                 span.rssTitle {{n.title}}
                 p.rssDesc
-                    img.rssImg(ng-show="isDefined(n.enclosure)", ng-src="{{n.enclosure.url}}")
+                    img.rssImg(ng-show="utils.isDefined(n.enclosure)", ng-src="{{n.enclosure.url}}")
                     | {{n.description}}
                     br
-                    | {{parsePubDate(n.pubDate)}}
+                    | {{utils.formatDate(n.pubDate)}}
                     a.readMore(href="{{n.link}}", target="_blank") >>
