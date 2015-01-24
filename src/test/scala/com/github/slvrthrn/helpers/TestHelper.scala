@@ -76,7 +76,7 @@ class TestHelper extends InjectHelper {
 
   def getNews(user: User): Seq[RssNews] = {
     val limit = config.getInt("app.default.news.onPageLimit")
-    val futureNews = rssService.getNews(user, limit).asScala
+    val futureNews = rssService.getNews(user.feed, limit).asScala
     Await.result(futureNews, awaitTimeout)
   }
 

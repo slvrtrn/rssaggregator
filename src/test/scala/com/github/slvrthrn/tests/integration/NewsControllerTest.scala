@@ -56,17 +56,17 @@ class NewsControllerTest extends IntegrationTest {
 
   it should "render specific news item" in {
     val item = helper.getNews(user).head
-    get(s"/api/v1/news/${item._id.toString}")
+    get(s"/api/v1/news/${item._id}")
     val result = parseJson[RssNews](response.body)
     result.title should equal (item.title)
     result.link should equal (item.link)
     result.description should equal (item.description)
   }
 
-  it should "use range-based pagination correctly" in {
+  it should "use range-based pagination correctly for all news" in {
     val news = helper.getNews(user)
     val objectId = news(4)._id
-    get(s"/api/v1/news/start/${objectId.toString}")
+    get(s"/api/v1/news?start=$objectId")
     val result = parseJson[Seq[RssNews]](response.body)
     result.size should be > 0
   }
@@ -84,13 +84,22 @@ class NewsControllerTest extends IntegrationTest {
 
   it should "render all news with specific rss url" in {
     val objectId = user.feed.head
-    get(s"/api/v1/news/url/$objectId")
+    get(s"/api/v1/urls/$objectId/news")
+    val result = parseJson[Seq[RssNews]](response.body)
+    result.size should be > 0
+  }
+
+  it should "use range-based pagination for news with specific rss url" in {
+    val objectId = user.feed.head
+    val news = helper.getNews(user)
+    val startId = news(4)._id
+    get(s"/api/v1/urls/$objectId/news?start=$startId")
     val result = parseJson[Seq[RssNews]](response.body)
     result.size should be > 0
   }
 
   it should "response with 400 bad request for news list with specific url" in {
-    get("/api/v1/news/url/randomtext")
+    get("/api/v1/urls/randomtext/news")
     response.status should equal (HttpResponseStatus.BAD_REQUEST)
   }
 
