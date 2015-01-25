@@ -1,6 +1,7 @@
 # rssaggregator
 
 This project is a simple RSS Aggregator written by me in Scala just for educational purpose.
+
 Here is a complete list of technologies and instruments used:
 
 - Scala [ http://www.scala-lang.org/ ]
@@ -36,5 +37,7 @@ Setup
 - For tests: create database "aggregator-test" in Mongo and run an instance of Redis server on 6380 port.
 
 All ports, URI, etc are adjustable at config, that is located at "./src/main/resources/application.conf".
+
 Make sure that SBT is installed on your system, then just type "sbt" in project's directory.
+
 Then, to run the application type "run" in the console (or "~reStart", if you want to recompile and restart the application on the fly when source code changes); to run only the tests type "test".
