@@ -41,3 +41,9 @@ All ports, URI, etc are adjustable at config, that is located at "./src/main/res
 Make sure that SBT is installed on your system, then just type "sbt" in project's directory.
 
 Then, to run the application type "run" in the console (or "~reStart", if you want to recompile and restart the application on the fly when source code changes); to run only the tests type "test".
+
+Jade->Html, Less->Css conversions and JS concatination tasks are handled by Gulp.
+
+To engage all of these features, change directory to "./frontend" and run "gulp watch" command.
+
+Make sure that Gulp is installed on your system.
