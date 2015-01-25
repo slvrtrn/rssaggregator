@@ -5,7 +5,7 @@ Here is a complete list of technologies and instruments used:
 
 - Scala [ http://www.scala-lang.org/ ]
 - ScalaTest [ http://www.scalatest.org/ ]
-- ScalaStyle
+- ScalaStyle [ http://www.scalastyle.org/ ]
 - SBT [ http://www.scala-sbt.org/ ]
 - SBT Revolver [ https://github.com/spray/sbt-revolver ]
 - Finatra [ http://finatra.info/ ]
